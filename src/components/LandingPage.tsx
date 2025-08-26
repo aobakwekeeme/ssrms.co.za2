@@ -258,7 +258,7 @@ export default function LandingPage() {
             <div>
               <h4 className="font-semibold mb-4 text-white">Quick Links</h4>
               <ul className="space-y-3 text-sm text-gray-300">
-                <li><a href="/about" className="hover:text-teal-400 transition-colors">About</a></li>
+                <li><a href="src/pages/AboutPage.tsx" className="hover:text-teal-400 transition-colors">About</a></li>
                 <li><a href="/features" className="hover:text-teal-400 transition-colors">Features</a></li>
                 <li><a href="/support" className="hover:text-teal-400 transition-colors">Support</a></li>
               </ul>
