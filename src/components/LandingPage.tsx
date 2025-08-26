@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Store, Shield, Users } from 'lucide-react';
 import AuthModal from './AuthModal';
 
@@ -258,25 +259,25 @@ export default function LandingPage() {
             <div>
               <h4 className="font-semibold mb-4 text-white">Quick Links</h4>
               <ul className="space-y-3 text-sm text-gray-300">
-                <li><a href="src/pages/AboutPage.tsx" className="hover:text-teal-400 transition-colors">About</a></li>
-                <li><a href="/features" className="hover:text-teal-400 transition-colors">Features</a></li>
-                <li><a href="/support" className="hover:text-teal-400 transition-colors">Support</a></li>
+                <li><Link to="/about" className="hover:text-teal-400 transition-colors">About</Link></li>
+                <li><Link to="/features" className="hover:text-teal-400 transition-colors">Features</Link></li>
+                <li><Link to="/support" className="hover:text-teal-400 transition-colors">Support</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4 text-white">Legal</h4>
               <ul className="space-y-3 text-sm text-gray-300">
-                <li><a href="/privacy-policy" className="hover:text-teal-400 transition-colors">Privacy Policy</a></li>
-                <li><a href="/terms-of-service" className="hover:text-teal-400 transition-colors">Terms of Service</a></li>
-                <li><a href="/compliance" className="hover:text-teal-400 transition-colors">Compliance</a></li>
+                <li><Link to="/privacy-policy" className="hover:text-teal-400 transition-colors">Privacy Policy</Link></li>
+                <li><Link to="/terms-of-service" className="hover:text-teal-400 transition-colors">Terms of Service</Link></li>
+                <li><Link to="/compliance" className="hover:text-teal-400 transition-colors">Compliance</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4 text-white">Contact</h4>
               <ul className="space-y-3 text-sm text-gray-300">
-                <li><a href="/support" className="hover:text-teal-400 transition-colors">Help Center</a></li>
-                <li><a href="/contact" className="hover:text-teal-400 transition-colors">Contact</a></li>
-                <li><a href="/feedback" className="hover:text-teal-400 transition-colors">Feedback</a></li>
+                <li><Link to="/support" className="hover:text-teal-400 transition-colors">Help Center</Link></li>
+                <li><Link to="/contact" className="hover:text-teal-400 transition-colors">Contact</Link></li>
+                <li><Link to="/feedback" className="hover:text-teal-400 transition-colors">Feedback</Link></li>
               </ul>
             </div>
             <div>
