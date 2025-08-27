@@ -46,7 +46,9 @@ function AppRoutes() {
         </>
       )}
       {user.role === 'government' && (
-        <Route path="/dashboard" element={<GovernmentDashboard />} />
+        <>
+          <Route path="/dashboard" element={<GovernmentDashboard />} />
+        </>
       )}
       {user.role === 'customer' && (
         <>
@@ -54,6 +56,7 @@ function AppRoutes() {
           <Route path="/shop-profile" element={<ShopProfile />} />
         </>
       )}
+      {/* Make these pages available to all users */}
       <Route path="/about" element={<AboutPage />} />
       <Route path="/features" element={<FeaturesPage />} />
       <Route path="/support" element={<SupportPage />} />
