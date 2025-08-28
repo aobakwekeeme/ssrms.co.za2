@@ -236,7 +236,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="relative bg-gradient-to-b from-gray-800 to-gray-900 text-white py-16 overflow-hidden">
         {/* Background decorative elements */}
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-10 left-20 w-64 h-64 bg-teal-900/20 rounded-full mix-blend-multiply filter blur-xl"></div>
           <div className="absolute bottom-10 right-20 w-64 h-64 bg-blue-900/20 rounded-full mix-blend-multiply filter blur-xl"></div>
         </div>
