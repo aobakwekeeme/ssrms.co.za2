@@ -108,19 +108,28 @@ For testing purposes, use these demo accounts:
 ```
 src/
 ├── components/                          # React components
-│   ├── AuthModal.tsx                    # Authentication modal
-│   ├── LandingPage.tsx                  # Homepage component
-│   ├── CustomerDashboard.tsx
-│   ├── ShopOwnerDashboard.tsx
-│   ├── GovernmentDashboard.tsx
-│   └── ShopProfile.tsx
+│   ├── AuthModal.tsx                    # Authentication modal with role-based signup
+│   ├── LandingPage.tsx                  # Homepage with navigation and footer
+│   ├── SignInPage.tsx                   # Dedicated sign-in page
+│   ├── CustomerDashboard.tsx            # Customer role dashboard
+│   ├── ShopOwnerDashboard.tsx           # Shop owner role dashboard
+│   ├── GovernmentDashboard.tsx          # Government official dashboard
+│   ├── ShopProfile.tsx                  # Shop profile and details page
+│   └── RegisterModal.tsx                # Registration modal component
+├── pages/                               # Static and informational pages
+│   ├── AboutPage.tsx                    # About SSRMS page
+│   ├── FeaturesPage.tsx                 # Platform features overview
+│   ├── SupportPage.tsx                  # Help and support center
+│   ├── ContactPage.tsx                  # Contact information and form
+│   ├── FeedbackPage.tsx                 # User feedback and suggestions
+│   ├── PrivacyPolicyPage.tsx            # POPIA-compliant privacy policy
+│   ├── TermsOfServicePage.tsx           # Terms of service
+│   └── CompliancePage.tsx               # Compliance standards and process
 ├── contexts/                            # React contexts
-│   └── AuthContext.tsx                  # Authentication context
-├── hooks/                               # Custom React hooks
-│   └── useAuth.ts                       # Authentication hook
-├── App.tsx                              # Main application component
+│   └── AuthContext.tsx                  # Authentication context with demo users
+├── App.tsx                              # Main application with routing
 ├── main.tsx                             # Application entry point
-└── index.css                            # Global styles
+└── index.css                            # Global Tailwind CSS styles
 ```
 
 ## 🛠️ Available Scripts
@@ -244,6 +253,13 @@ We use conventional commits for clear project history:
 - High-speed internet connection
 - Desktop/laptop for government officials
 - Mobile device for customers and shop owners
+
+### Current Demo Limitations
+- Authentication uses hardcoded demo users (no real backend)
+- Data is not persisted between sessions
+- File uploads are simulated
+- Maps and charts show placeholder content
+- No real-time notifications or updates
 
 ## 🔒 Security
 
