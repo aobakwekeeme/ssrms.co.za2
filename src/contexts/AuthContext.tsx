@@ -31,21 +31,21 @@ const DEMO_USERS = [
     id: '1',
     email: 'mokoena@gmail.com',
     password: 'Mokoena2025',
-    name: 'Thabo Mokoena',
+    name: 'Billy Mokoena',
     role: 'shop-owner' as const
   },
   {
     id: '2',
     email: 'masia@gmail.com',
     password: 'Masia2025',
-    name: 'Inspector Sarah Masia',
+    name: 'Tshimangadzo Masia',
     role: 'government' as const
   },
   {
     id: '3',
     email: 'kamba@gmail.com',
     password: 'Kamba2025',
-    name: 'Nomsa Kamba',
+    name: 'Khanyisa Kamba',
     role: 'customer' as const
   }
 ];
