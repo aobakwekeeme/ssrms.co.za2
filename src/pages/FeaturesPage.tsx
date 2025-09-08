@@ -117,25 +117,25 @@ export default function FeaturesPage() {
     {
       title: 'Mobile App',
       description: 'Native mobile applications for iOS and Android with offline capabilities.',
-      timeline: 'Q2 2025',
-      status: 'In Development'
+      timeline: 'Q1 2026',
+      status: 'Research Phase'
     },
     {
       title: 'Payment Integration',
       description: 'Integrated payment processing for shop registration fees and services.',
-      timeline: 'Q3 2025',
+      timeline: 'Q2 2026',
       status: 'Planned'
     },
     {
       title: 'AI-Powered Insights',
       description: 'Machine learning algorithms for predictive compliance and risk assessment.',
-      timeline: 'Q4 2025',
+      timeline: 'Q3 2026',
       status: 'Research Phase'
     },
     {
       title: 'Multi-language Support',
       description: 'Support for all 11 official South African languages.',
-      timeline: 'Q1 2026',
+      timeline: 'Q4 2026',
       status: 'Planned'
     }
   ];
