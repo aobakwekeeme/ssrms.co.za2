@@ -11,7 +11,7 @@ interface AuthModalProps {
 }
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChange, defaultRole = 'customer' }) => {
-  const { signIn } = useAuth();
+  const { signIn, signUp } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -38,12 +38,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
         if (success) {
           onClose();
         } else {
-          setError('Invalid email or password');
+          setError('The email or password you entered is incorrect. Please try again.');
         }
       } else {
         // For signup, use real Supabase registration
         if (formData.password.length < 6) {
-          setError('Password must be at least 6 characters');
+          setError('Your password must be at least 6 characters long. Please choose a longer password.');
           return;
         }
         
@@ -62,11 +62,28 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
         if (success) {
           setEmailConfirmationSent(true);
         } else {
-          setError('Registration failed. Please try again.');
+          setError('We could not create your account. This email might already be registered. Please try a different email or sign in instead.');
         }
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      if (err instanceof Error) {
+        // Convert technical error messages to user-friendly ones
+        let userMessage = 'Something went wrong. Please try again.';
+        
+        if (err.message.includes('already registered') || err.message.includes('already exists')) {
+          userMessage = 'This email is already registered. Please sign in instead or use a different email.';
+        } else if (err.message.includes('invalid email')) {
+          userMessage = 'Please enter a valid email address.';
+        } else if (err.message.includes('weak password')) {
+          userMessage = 'Please choose a stronger password with at least 6 characters.';
+        } else if (err.message.includes('network') || err.message.includes('connection')) {
+          userMessage = 'Please check your internet connection and try again.';
+        }
+        
+        setError(userMessage);
+      } else {
+        setError('Something went wrong. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -140,7 +157,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
               
               <p className="text-gray-600 mb-6">
                 We've sent a confirmation link to <strong>{formData.email}</strong>. 
-                Click the link in your email to activate your account.
+                Please click the link in your email to activate your account.
               </p>
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
@@ -149,10 +166,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
                   <div className="text-left">
                     <p className="text-sm font-medium text-blue-900">What happens next?</p>
                     <ul className="text-sm text-blue-800 mt-1 space-y-1">
-                      <li>• Check your email inbox (and spam folder)</li>
-                      <li>• Click the confirmation link</li>
-                      <li>• Return to sign in with your credentials</li>
-                      <li>• Access your personalized dashboard</li>
+                      <li>• Check your email inbox and spam folder</li>
+                      <li>• Click the confirmation link in the email</li>
+                      <li>• Come back here and sign in with your email and password</li>
+                      <li>• Start using your account</li>
                     </ul>
                   </div>
                 </div>
@@ -395,7 +412,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
           {mode === 'signup' && (
             <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
               <p className="text-sm text-blue-800 font-medium mb-1">Email Confirmation Required</p>
-              <p className="text-sm text-blue-700">After registration, you'll receive a confirmation email. Click the link to activate your account and sign in automatically.</p>
+              <p className="text-sm text-blue-700">After creating your account, we'll send you an email with a confirmation link. Click the link to activate your account, then come back here to sign in.</p>
             </div>
           )}
 
@@ -404,7 +421,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
               <h3 className="text-sm font-medium text-blue-900 mb-2">Demo Credentials:</h3>
               <div className="space-y-2 text-xs text-blue-800">
                 <p className="text-blue-700">
-                  Create a new account or use existing credentials if you have registered before.
+                  You can create a new account above, or sign in if you already have an account.
                 </p>
               </div>
             </div>
