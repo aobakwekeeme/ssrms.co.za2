@@ -179,6 +179,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
+  }
   const signOut = async () => {
     try {
       setLoading(true);
