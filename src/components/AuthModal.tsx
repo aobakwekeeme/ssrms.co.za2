@@ -34,21 +34,36 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
 
     try {
       if (mode === 'signin') {
-        const success = signIn(formData.email, formData.password);
+        const success = await signIn(formData.email, formData.password);
         if (success) {
           onClose();
         } else {
           setError('Invalid email or password');
         }
       } else {
-        // For signup, simulate email confirmation
+        // For signup, use real Supabase registration
         if (formData.password.length < 6) {
           setError('Password must be at least 6 characters');
           return;
         }
         
-        // Simulate registration success
-        setEmailConfirmationSent(true);
+        // Prepare user data based on role
+        const userData = {
+          full_name: formData.name,
+          role: formData.userType as 'customer' | 'shop_owner' | 'government_official',
+          phone_number: formData.phone || undefined,
+          address: formData.address || undefined,
+          business_name: formData.userType === 'shop_owner' ? formData.businessName : undefined,
+          department: formData.userType === 'government_official' ? formData.department : undefined,
+          jurisdiction: formData.userType === 'government_official' ? formData.address : undefined,
+        };
+
+        const success = await signUp(formData.email, formData.password, userData);
+        if (success) {
+          setEmailConfirmationSent(true);
+        } else {
+          setError('Registration failed. Please try again.');
+        }
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -125,7 +140,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
               
               <p className="text-gray-600 mb-6">
                 We've sent a confirmation link to <strong>{formData.email}</strong>. 
-                Click the link in your email to activate your account and sign in automatically.
+                Click the link in your email to activate your account.
               </p>
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
@@ -136,7 +151,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
                     <ul className="text-sm text-blue-800 mt-1 space-y-1">
                       <li>• Check your email inbox (and spam folder)</li>
                       <li>• Click the confirmation link</li>
-                      <li>• You'll be automatically signed in</li>
+                      <li>• Return to sign in with your credentials</li>
                       <li>• Access your personalized dashboard</li>
                     </ul>
                   </div>
@@ -209,7 +224,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
               >
                 <option value="customer">Customer - Find and review spaza shops</option>
                 <option value="shop_owner">Shop Owner - Register and manage my spaza shop</option>
-                <option value="government_official">Government Official - Verify and monitor shops</option>
+                <option value="government_official">Government Official - Monitor and inspect shops</option>
               </select>
             </div>
           )}
@@ -388,18 +403,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
             <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
               <h3 className="text-sm font-medium text-blue-900 mb-2">Demo Credentials:</h3>
               <div className="space-y-2 text-xs text-blue-800">
-                <div className="border-b border-blue-200 pb-1">
-                  <div className="font-medium">Shop Owner</div>
-                  <div>mokoena@gmail.com / Mokoena2025</div>
-                </div>
-                <div className="border-b border-blue-200 pb-1">
-                  <div className="font-medium">Government Official</div>
-                  <div>masia@gmail.com / Masia2025</div>
-                </div>
-                <div>
-                  <div className="font-medium">Customer</div>
-                  <div>kamba@gmail.com / Kamba2025</div>
-                </div>
+                <p className="text-blue-700">
+                  Create a new account or use existing credentials if you have registered before.
+                </p>
               </div>
             </div>
           )}
