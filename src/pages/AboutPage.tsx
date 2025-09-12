@@ -118,7 +118,7 @@ export default function AboutPage() {
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">Our Story</h2>
           <div className="prose prose-lg mx-auto text-gray-700">
             <p className="mb-6">
-              Founded in 2025, SSRMS emerged from a critical need to address food safety concerns and 
+              Founded in 2023, SSRMS emerged from a critical need to address food safety concerns and 
               support local entrepreneurship in South African townships. Following several food safety 
               incidents in informal retail sectors, government officials, community leaders, and 
               technology experts came together to create a solution.

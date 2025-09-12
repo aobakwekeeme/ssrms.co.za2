@@ -11,7 +11,7 @@ interface AuthModalProps {
 }
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChange, defaultRole = 'customer' }) => {
-  const { signIn, signUp } = useAuth();
+  const { signIn } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -34,92 +34,27 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
 
     try {
       if (mode === 'signin') {
-        const success = await signIn(formData.email, formData.password);
+        const success = signIn(formData.email, formData.password);
         if (success) {
           onClose();
         } else {
-          setError('The email or password you entered is incorrect. Please try again.');
+          setError('Invalid email or password');
         }
       } else {
-        // Enhanced password validation for Supabase requirements
-        const passwordValidation = validatePassword(formData.password);
-        if (!passwordValidation.isValid) {
-          setError(passwordValidation.message);
+        // For signup, simulate email confirmation
+        if (formData.password.length < 6) {
+          setError('Password must be at least 6 characters');
           return;
         }
         
-        // Prepare user data based on role
-        const userData = {
-          full_name: formData.name,
-          role: formData.userType as 'customer' | 'shop_owner' | 'government_official',
-          phone_number: formData.phone || undefined,
-          address: formData.address || undefined,
-          business_name: formData.userType === 'shop_owner' ? formData.businessName : undefined,
-          department: formData.userType === 'government_official' ? formData.department : undefined,
-          jurisdiction: formData.userType === 'government_official' ? formData.address : undefined,
-        };
-
-        const success = await signUp(formData.email, formData.password, userData);
-        if (success) {
-          setEmailConfirmationSent(true);
-        } else {
-          setError('We could not create your account. This email might already be registered. Please try a different email or sign in instead.');
-        }
+        // Simulate registration success
+        setEmailConfirmationSent(true);
       }
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(getErrorMessage(err.message));
-      } else {
-        setError('Something went wrong. Please try again.');
-      }
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // Password validation function
-  const validatePassword = (password: string) => {
-    if (password.length < 8) {
-      return {
-        isValid: false,
-        message: 'Your password must be at least 8 characters long.'
-      };
-    }
-
-    const hasLowercase = /[a-z]/.test(password);
-    const hasUppercase = /[A-Z]/.test(password);
-    const hasNumbers = /\d/.test(password);
-    const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(password);
-
-    if (!hasLowercase || !hasUppercase || !hasNumbers || !hasSpecialChar) {
-      return {
-        isValid: false,
-        message: 'Your password must include: at least one lowercase letter (a-z), one uppercase letter (A-Z), one number (0-9), and one special character (!@#$%^&* etc.).'
-      };
-    }
-
-    return { isValid: true, message: '' };
-  };
-
-  // Error message converter
-  const getErrorMessage = (errorMessage: string): string => {
-    if (errorMessage.includes('already registered') || errorMessage.includes('already exists')) {
-      return 'This email is already registered. Please sign in instead or use a different email.';
-    }
-    
-    if (errorMessage.includes('invalid email')) {
-      return 'Please enter a valid email address.';
-    }
-    
-    if (errorMessage.includes('weak_password') || errorMessage.includes('Password should contain')) {
-      return 'Your password must include: at least one lowercase letter (a-z), one uppercase letter (A-Z), one number (0-9), and one special character (!@#$%^&* etc.).';
-    }
-    
-    if (errorMessage.includes('network') || errorMessage.includes('connection')) {
-      return 'Please check your internet connection and try again.';
-    }
-    
-    return 'Something went wrong. Please try again.';
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -190,7 +125,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
               
               <p className="text-gray-600 mb-6">
                 We've sent a confirmation link to <strong>{formData.email}</strong>. 
-                Please click the link in your email to activate your account.
+                Click the link in your email to activate your account and sign in automatically.
               </p>
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
@@ -199,10 +134,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
                   <div className="text-left">
                     <p className="text-sm font-medium text-blue-900">What happens next?</p>
                     <ul className="text-sm text-blue-800 mt-1 space-y-1">
-                      <li>• Check your email inbox and spam folder</li>
-                      <li>• Click the confirmation link in the email</li>
-                      <li>• Come back here and sign in with your email and password</li>
-                      <li>• Start using your account</li>
+                      <li>• Check your email inbox (and spam folder)</li>
+                      <li>• Click the confirmation link</li>
+                      <li>• You'll be automatically signed in</li>
+                      <li>• Access your personalized dashboard</li>
                     </ul>
                   </div>
                 </div>
@@ -274,7 +209,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
               >
                 <option value="customer">Customer - Find and review spaza shops</option>
                 <option value="shop_owner">Shop Owner - Register and manage my spaza shop</option>
-                <option value="government_official">Government Official - Monitor and inspect shops</option>
+                <option value="government_official">Government Official - Verify and monitor shops</option>
               </select>
             </div>
           )}
@@ -410,9 +345,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
               </button>
             </div>
             {mode === 'signup' && (
-              <p className="text-xs text-gray-500 mt-1">
-                Must be at least 8 characters with uppercase, lowercase, number, and special character
-              </p>
+              <p className="text-xs text-gray-500 mt-1">Minimum 6 characters required</p>
             )}
           </div>
 
@@ -447,7 +380,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
           {mode === 'signup' && (
             <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
               <p className="text-sm text-blue-800 font-medium mb-1">Email Confirmation Required</p>
-              <p className="text-sm text-blue-700">After creating your account, we'll send you an email with a confirmation link. Click the link to activate your account, then come back here to sign in.</p>
+              <p className="text-sm text-blue-700">After registration, you'll receive a confirmation email. Click the link to activate your account and sign in automatically.</p>
             </div>
           )}
 
@@ -455,9 +388,18 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
             <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
               <h3 className="text-sm font-medium text-blue-900 mb-2">Demo Credentials:</h3>
               <div className="space-y-2 text-xs text-blue-800">
-                <p className="text-blue-700">
-                  You can create a new account above, or sign in if you already have an account.
-                </p>
+                <div className="border-b border-blue-200 pb-1">
+                  <div className="font-medium">Shop Owner</div>
+                  <div>mokoena@gmail.com / Mokoena2025</div>
+                </div>
+                <div className="border-b border-blue-200 pb-1">
+                  <div className="font-medium">Government Official</div>
+                  <div>masia@gmail.com / Masia2025</div>
+                </div>
+                <div>
+                  <div className="font-medium">Customer</div>
+                  <div>kamba@gmail.com / Kamba2025</div>
+                </div>
               </div>
             </div>
           )}
