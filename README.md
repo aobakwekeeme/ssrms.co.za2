@@ -92,6 +92,8 @@ To create a fair, transparent, and efficient ecosystem for spaza shop operations
    - Go to Authentication > Settings in your Supabase dashboard
    - **Disable** "Enable email confirmations" for instant signup
    - **Enable** "Enable email signup"
+   - **Enable** "Enable manual linking" in Authentication > Settings
+   - Make sure Row Level Security policies are properly configured
    - Ensure your project URL and anon key are correct
 
 4. **Set up database**

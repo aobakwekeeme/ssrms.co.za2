@@ -135,99 +135,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (data: SignUpData): Promise<{ success: boolean; error?: string }> => {
     try {
-      // Try Supabase signup first
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      // First, sign up the user with Supabase Auth
+      const { data: authResult, error: signUpError } = await supabase.auth.signUp({
         email: data.email,
-        password: data.password,
-        options: {
-          emailRedirectTo: undefined,
-          data: {}
-        }
+        password: data.password
       });
 
-      if (authError) {
-        console.error('Supabase auth signup error:', authError);
-        
-        // Always fall back to demo mode if Supabase fails
-        console.warn('Falling back to demo authentication due to Supabase issues');
-        return await fallbackSignUp(data);
+      if (signUpError) {
+        console.error('Supabase signup error:', signUpError);
+        return { success: false, error: signUpError.message };
       }
 
-      if (!authData.user) {
-        console.warn('No user returned from Supabase, falling back to demo mode');
-        return await fallbackSignUp(data);
+      if (!authResult.user) {
+        return { success: false, error: 'No user returned from signup' };
       }
 
-      // Create user profile
-      try {
-        const { error: insertError } = await supabase
-          .from('user_profiles')
-          .insert({
-            id: authData.user.id,
-            full_name: data.name,
-            role: data.userType,
-            phone: data.phone,
-            address: data.address,
-            business_name: data.businessName || null,
-            department: data.department || null
-          });
+      // Wait a moment for the user to be fully created in auth.users
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-        if (insertError) {
-          console.error('Manual profile creation error:', insertError);
-          console.warn('Profile creation failed, falling back to demo mode');
-          return await fallbackSignUp(data);
-        }
+      // Create the user profile in user_profiles table
+      const { error: profileError } = await supabase
+        .from('user_profiles')
+        .insert({
+          id: authResult.user.id,
+          full_name: data.name,
+          role: data.userType,
+          phone: data.phone,
+          address: data.address,
+          business_name: data.businessName || null,
+          department: data.department || null
+        });
 
-        await loadUserProfile(authData.user);
-        return { success: true };
-      } catch (error) {
-        console.error('Profile creation failed:', error);
-        console.warn('Falling back to demo mode');
-        return await fallbackSignUp(data);
+      if (profileError) {
+        console.error('Profile creation error:', profileError);
+        // Clean up the auth user if profile creation fails
+        await supabase.auth.signOut();
+        return { success: false, error: `Profile creation failed: ${profileError.message}` };
       }
+
+      // Load the user profile and set the user state
+      await loadUserProfile(authResult.user);
+      return { success: true };
+
     } catch (error) {
       console.error('Sign up error:', error);
-      console.warn('Falling back to demo authentication due to unexpected error');
-      return await fallbackSignUp(data);
-    }
-  };
-
-  // Fallback signup for demo purposes when Supabase is not properly configured
-  const fallbackSignUp = async (data: SignUpData): Promise<{ success: boolean; error?: string }> => {
-    try {
-      // Generate a demo user ID
-      const demoUserId = `demo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
-      // Create a demo user object
-      const demoUser: User = {
-        id: demoUserId,
-        email: data.email,
-        name: data.name,
-        role: data.userType === 'shop_owner' ? 'shop-owner' : 
-              data.userType === 'government_official' ? 'government' : 'customer',
-        phone: data.phone,
-        address: data.address,
-        business_name: data.businessName,
-        department: data.department
-      };
-      
-      // Store user data and credentials for demo authentication
-      const existingUsers = JSON.parse(localStorage.getItem('demo_users') || '[]');
-      const demoUserWithCredentials = {
-        ...demoUser,
-        password: data.password // Store password for demo sign-in
-      };
-      existingUsers.push(demoUserWithCredentials);
-      localStorage.setItem('demo_users', JSON.stringify(existingUsers));
-      
-      // Set the current user and persist session
-      setUser(demoUser);
-      localStorage.setItem('demo_current_user', JSON.stringify(demoUser));
-      
-      return { success: true };
-    } catch (error) {
-      console.error('Fallback signup error:', error);
-      return { success: false, error: 'Registration failed. Please try again.' };
+      return { success: false, error: error instanceof Error ? error.message : 'An unexpected error occurred' };
     }
   };
 
@@ -235,41 +187,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await supabase.auth.signOut();
       setUser(null);
-      localStorage.removeItem('demo_current_user');
     } catch (error) {
       console.error('Sign out error:', error);
       setUser(null);
-      localStorage.removeItem('demo_current_user');
     }
   };
 
-  // Enhanced demo sign in with localStorage support
   const legacySignIn = (email: string, password: string): boolean => {
-    // First check hardcoded demo users
-    let foundUser = DEMO_USERS.find(
+    const foundUser = DEMO_USERS.find(
       u => u.email === email && u.password === password
     );
 
-    // If not found in hardcoded users, check localStorage demo users
-    if (!foundUser) {
-      const demoUsers = JSON.parse(localStorage.getItem('demo_users') || '[]');
-      foundUser = demoUsers.find((u: any) => u.email === email && u.password === password);
-    }
-
     if (foundUser) {
-      const userProfile = {
+      setUser({
         id: foundUser.id,
         email: foundUser.email,
         name: foundUser.name,
-        role: foundUser.role,
-        phone: foundUser.phone,
-        address: foundUser.address,
-        business_name: foundUser.business_name,
-        department: foundUser.department
-      };
-      
-      setUser(userProfile);
-      localStorage.setItem('demo_current_user', JSON.stringify(userProfile));
+        role: foundUser.role
+      });
       return true;
     }
     return false;
@@ -296,20 +231,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         await loadUserProfile(session.user);
-      } else {
-        // Check for demo user session if no Supabase session
-        const demoUser = localStorage.getItem('demo_current_user');
-        if (demoUser) {
-          setUser(JSON.parse(demoUser));
-        }
       }
     } catch (error) {
       console.error('Error initializing auth:', error);
-      // Check for demo user session on any error
-      const demoUser = localStorage.getItem('demo_current_user');
-      if (demoUser) {
-        setUser(JSON.parse(demoUser));
-      }
     } finally {
       setLoading(false);
     }
