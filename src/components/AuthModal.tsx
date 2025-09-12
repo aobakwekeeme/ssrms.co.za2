@@ -11,7 +11,7 @@ interface AuthModalProps {
 }
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChange, defaultRole = 'customer' }) => {
-  const { signIn } = useAuth();
+  const { signIn, signUp } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -25,7 +25,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [emailConfirmationSent, setEmailConfirmationSent] = useState(false);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,21 +34,38 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
 
     try {
       if (mode === 'signin') {
-        const success = signIn(formData.email, formData.password);
+        const success = await signIn(formData.email, formData.password);
         if (success) {
           onClose();
         } else {
           setError('Invalid email or password');
         }
       } else {
-        // For signup, simulate email confirmation
         if (formData.password.length < 6) {
           setError('Password must be at least 6 characters');
           return;
         }
         
-        // Simulate registration success
-        setEmailConfirmationSent(true);
+        const result = await signUp({
+          email: formData.email,
+          password: formData.password,
+          userType: formData.userType as 'customer' | 'shop_owner' | 'government_official',
+          name: formData.name,
+          phone: formData.phone,
+          address: formData.address,
+          businessName: formData.businessName || undefined,
+          department: formData.department || undefined
+        });
+
+        if (result.success) {
+          setRegistrationSuccess(true);
+          // Auto-close after 2 seconds
+          setTimeout(() => {
+            onClose();
+          }, 2000);
+        } else {
+          setError(result.error || 'Registration failed');
+        }
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -77,7 +94,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
     });
     setError('');
     setShowPassword(false);
-    setEmailConfirmationSent(false);
+    setRegistrationSuccess(false);
   };
 
   // Update userType when defaultRole changes
@@ -98,14 +115,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
 
   if (!isOpen) return null;
 
-  // Email confirmation screen
-  if (emailConfirmationSent) {
+  // Registration success screen
+  if (registrationSuccess) {
     return (
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
           <div className="p-6">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Check Your Email</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Registration Successful!</h2>
               <button
                 onClick={handleClose}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -115,29 +132,27 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
             </div>
 
             <div className="text-center">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Mail className="w-8 h-8 text-blue-600" />
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
               
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Confirmation Email Sent
+                Welcome to SSRMS!
               </h3>
               
               <p className="text-gray-600 mb-6">
-                We've sent a confirmation link to <strong>{formData.email}</strong>. 
-                Click the link in your email to activate your account and sign in automatically.
+                Your account has been created successfully. You are now signed in and can access your dashboard.
               </p>
 
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
                 <div className="flex items-start space-x-3">
-                  <CheckCircle className="w-5 h-5 text-blue-600 mt-0.5" />
+                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
                   <div className="text-left">
-                    <p className="text-sm font-medium text-blue-900">What happens next?</p>
-                    <ul className="text-sm text-blue-800 mt-1 space-y-1">
-                      <li>• Check your email inbox (and spam folder)</li>
-                      <li>• Click the confirmation link</li>
-                      <li>• You'll be automatically signed in</li>
-                      <li>• Access your personalized dashboard</li>
+                    <p className="text-sm font-medium text-green-900">You're all set!</p>
+                    <ul className="text-sm text-green-800 mt-1 space-y-1">
+                      <li>• Your account is active and ready to use</li>
+                      <li>• You'll be redirected to your dashboard</li>
+                      <li>• Complete your profile setup if needed</li>
                     </ul>
                   </div>
                 </div>
@@ -379,8 +394,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
 
           {mode === 'signup' && (
             <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
-              <p className="text-sm text-blue-800 font-medium mb-1">Email Confirmation Required</p>
-              <p className="text-sm text-blue-700">After registration, you'll receive a confirmation email. Click the link to activate your account and sign in automatically.</p>
+              <p className="text-sm text-blue-800 font-medium mb-1">Instant Account Activation</p>
+              <p className="text-sm text-blue-700">Your account will be activated immediately after registration. No email confirmation required.</p>
             </div>
           )}
 
