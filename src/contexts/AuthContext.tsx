@@ -74,19 +74,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const initialize = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        await loadUserProfile(session.user);
-      }
-    } catch (error) {
-      console.error('Error initializing auth:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const loadUserProfile = async (supabaseUser: SupabaseUser) => {
     try {
       const { data: profile, error } = await supabase
