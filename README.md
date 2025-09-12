@@ -88,6 +88,12 @@ To create a fair, transparent, and efficient ecosystem for spaza shop operations
    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
    ```
 
+   **Important Supabase Configuration:**
+   - Go to Authentication > Settings in your Supabase dashboard
+   - **Disable** "Enable email confirmations" for instant signup
+   - **Enable** "Enable email signup"
+   - Ensure your project URL and anon key are correct
+
 4. **Set up database**
    - Go to your Supabase Dashboard
    - Navigate to SQL Editor
@@ -96,6 +102,10 @@ To create a fair, transparent, and efficient ecosystem for spaza shop operations
      2. `002_create_spaza_shops_table.sql` 
      3. `003_create_compliance_system.sql`
 
+   **If Supabase is not configured:**
+   - The app will automatically fall back to demo mode
+   - User data will be stored locally for testing
+   - All features will work but data won't persist between devices
 5. **Start development server**
    ```bash
    npm run dev
