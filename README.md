@@ -61,14 +61,13 @@ To create a fair, transparent, and efficient ecosystem for spaza shop operations
 - **Node.js** (v18 or higher)
 - **npm** or **yarn** package manager
 - **Git** for version control
-- **Supabase Account** for database and authentication
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/ssrms.git
-   cd ssrms
+   git clone https://github.com/Tshimangadzo3v5/The-Genesis.git
+   cd The-Genesis
    ```
 
 2. **Install dependencies**
@@ -78,53 +77,31 @@ To create a fair, transparent, and efficient ecosystem for spaza shop operations
    yarn install
    ```
 
-3. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   ```
-   Edit `.env` and add your Supabase credentials:
-   ```
-   VITE_SUPABASE_URL=your_supabase_project_url
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
-
-   **Important Supabase Configuration:**
-   - Go to Authentication > Settings in your Supabase dashboard
-   - **Disable** "Enable email confirmations" for instant signup
-   - **Enable** "Enable email signup"
-   - **Enable** "Enable manual linking" in Authentication > Settings
-   - Make sure Row Level Security policies are properly configured
-   - Ensure your project URL and anon key are correct
-
-4. **Set up database**
-   - Go to your Supabase Dashboard
-   - Navigate to SQL Editor
-   - Run the migration files in `supabase/migrations/` in numerical order:
-     1. `001_create_user_profiles_system.sql`
-     2. `002_create_spaza_shops_table.sql` 
-     3. `003_create_compliance_system.sql`
-
-   **If Supabase is not configured:**
-   - The app will automatically fall back to demo mode
-   - User data will be stored locally for testing
-   - All features will work but data won't persist between devices
-5. **Start development server**
+3. **Start development server**
    ```bash
    npm run dev
    # or
    yarn dev
    ```
 
-6. **Open your browser**
+4. **Open your browser**
    Navigate to `http://localhost:5173`
 
-## 🔐 User Registration
+## 🔐 Demo Credentials
 
-Users can now register directly through the application:
-- **No email confirmation required** - accounts are activated immediately
-- **Three user types**: Customer, Shop Owner, Government Official
-- **Secure authentication** powered by Supabase
-- **Profile data** automatically saved to database
+For testing purposes, use these demo accounts:
+
+### Shop Owner
+- **Email**: `mokoena@gmail.com`
+- **Password**: `Mokoena2025`
+
+### Government Official
+- **Email**: `masia@gmail.com`
+- **Password**: `Masia2025`
+
+### Customer
+- **Email**: `kamba@gmail.com`
+- **Password**: `Kamba2025`
 
 ## 🏗️ Project Structure
 
@@ -139,8 +116,6 @@ src/
 │   ├── GovernmentDashboard.tsx          # Government official dashboard
 │   ├── ShopProfile.tsx                  # Shop profile and details page
 │   └── RegisterModal.tsx                # Registration modal component
-├── lib/                                 # Utility libraries
-│   └── supabase.ts                      # Supabase client configuration
 ├── pages/                               # Static and informational pages
 │   ├── AboutPage.tsx                    # About SSRMS page
 │   ├── FeaturesPage.tsx                 # Platform features overview
@@ -151,9 +126,7 @@ src/
 │   ├── TermsOfServicePage.tsx           # Terms of service
 │   └── CompliancePage.tsx               # Compliance standards and process
 ├── contexts/                            # React contexts
-│   └── AuthContext.tsx                  # Authentication context with Supabase
-├── supabase/                            # Database migrations
-│   └── migrations/                      # SQL migration files
+│   └── AuthContext.tsx                  # Authentication context with demo users
 ├── App.tsx                              # Main application with routing
 ├── main.tsx                             # Application entry point
 └── index.css                            # Global Tailwind CSS styles
@@ -177,12 +150,6 @@ src/
 - **Tailwind CSS 3.4.1** - Utility-first CSS framework
 - **React Router DOM 7.8.2** - Client-side routing
 - **Lucide React 0.344.0** - Icon library
-- **Supabase JS 2.57.4** - Database and authentication client
-
-### Backend
-- **Supabase** - Database, authentication, and real-time features
-- **PostgreSQL** - Relational database with Row Level Security
-- **PostgREST** - Auto-generated REST API
 
 ### Development Tools
 - **ESLint** - Code linting
@@ -288,8 +255,8 @@ We use conventional commits for clear project history:
 - Mobile device for customers and shop owners
 
 ### Current Demo Limitations
-- ~~Authentication uses hardcoded demo users (no real backend)~~ ✅ **Fixed: Real Supabase authentication**
-- ~~Data is not persisted between sessions~~ ✅ **Fixed: Data persisted in Supabase**
+- Authentication uses hardcoded demo users (no real backend)
+- Data is not persisted between sessions
 - File uploads are simulated
 - Maps and charts show placeholder content
 - No real-time notifications or updates
