@@ -41,9 +41,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
           setError('The email or password you entered is incorrect. Please try again.');
         }
       } else {
-        // For signup, use real Supabase registration
-        if (formData.password.length < 6) {
-          setError('Your password must be at least 6 characters long. Please choose a longer password.');
+        // Enhanced password validation for Supabase requirements
+        const passwordValidation = validatePassword(formData.password);
+        if (!passwordValidation.isValid) {
+          setError(passwordValidation.message);
           return;
         }
         
@@ -67,26 +68,58 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
       }
     } catch (err: unknown) {
       if (err instanceof Error) {
-        // Convert technical error messages to user-friendly ones
-        let userMessage = 'Something went wrong. Please try again.';
-        
-        if (err.message.includes('already registered') || err.message.includes('already exists')) {
-          userMessage = 'This email is already registered. Please sign in instead or use a different email.';
-        } else if (err.message.includes('invalid email')) {
-          userMessage = 'Please enter a valid email address.';
-        } else if (err.message.includes('weak password')) {
-          userMessage = 'Please choose a stronger password with at least 6 characters.';
-        } else if (err.message.includes('network') || err.message.includes('connection')) {
-          userMessage = 'Please check your internet connection and try again.';
-        }
-        
-        setError(userMessage);
+        setError(getErrorMessage(err.message));
       } else {
         setError('Something went wrong. Please try again.');
       }
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Password validation function
+  const validatePassword = (password: string) => {
+    if (password.length < 8) {
+      return {
+        isValid: false,
+        message: 'Your password must be at least 8 characters long.'
+      };
+    }
+
+    const hasLowercase = /[a-z]/.test(password);
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(password);
+
+    if (!hasLowercase || !hasUppercase || !hasNumbers || !hasSpecialChar) {
+      return {
+        isValid: false,
+        message: 'Your password must include: at least one lowercase letter (a-z), one uppercase letter (A-Z), one number (0-9), and one special character (!@#$%^&* etc.).'
+      };
+    }
+
+    return { isValid: true, message: '' };
+  };
+
+  // Error message converter
+  const getErrorMessage = (errorMessage: string): string => {
+    if (errorMessage.includes('already registered') || errorMessage.includes('already exists')) {
+      return 'This email is already registered. Please sign in instead or use a different email.';
+    }
+    
+    if (errorMessage.includes('invalid email')) {
+      return 'Please enter a valid email address.';
+    }
+    
+    if (errorMessage.includes('weak_password') || errorMessage.includes('Password should contain')) {
+      return 'Your password must include: at least one lowercase letter (a-z), one uppercase letter (A-Z), one number (0-9), and one special character (!@#$%^&* etc.).';
+    }
+    
+    if (errorMessage.includes('network') || errorMessage.includes('connection')) {
+      return 'Please check your internet connection and try again.';
+    }
+    
+    return 'Something went wrong. Please try again.';
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -377,7 +410,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
               </button>
             </div>
             {mode === 'signup' && (
-              <p className="text-xs text-gray-500 mt-1">Minimum 6 characters required</p>
+              <p className="text-xs text-gray-500 mt-1">
+                Must be at least 8 characters with uppercase, lowercase, number, and special character
+              </p>
             )}
           </div>
 
