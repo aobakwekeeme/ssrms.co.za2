@@ -41,8 +41,19 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
           setError('Invalid email or password');
         }
       } else {
-        if (formData.password.length < 6) {
-          setError('Password must be at least 6 characters');
+        // Validate password meets Supabase requirements
+        if (formData.password.length < 8) {
+          setError('Password must be at least 8 characters');
+          return;
+        }
+        
+        const hasLowercase = /[a-z]/.test(formData.password);
+        const hasUppercase = /[A-Z]/.test(formData.password);
+        const hasDigit = /[0-9]/.test(formData.password);
+        const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|<>?,./`~]/.test(formData.password);
+        
+        if (!hasLowercase || !hasUppercase || !hasDigit || !hasSpecialChar) {
+          setError('Password must contain at least one lowercase letter, one uppercase letter, one digit, and one special character');
           return;
         }
         
@@ -347,7 +358,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
                 value={formData.password}
                 onChange={handleInputChange}
                 required
-                minLength={6}
+                minLength={8}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all pr-12"
                 placeholder="Enter your password"
               />
@@ -360,7 +371,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
               </button>
             </div>
             {mode === 'signup' && (
-              <p className="text-xs text-gray-500 mt-1">Minimum 6 characters required</p>
+              <p className="text-xs text-gray-500 mt-1">
+                Minimum 8 characters with at least one lowercase, uppercase, digit, and special character
+              </p>
             )}
           </div>
 
