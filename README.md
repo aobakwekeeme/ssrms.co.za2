@@ -67,8 +67,8 @@ To create a fair, transparent, and efficient ecosystem for spaza shop operations
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/Tshimangadzo3v5/The-Genesis.git
-   cd The-Genesis
+   git clone https://github.com/your-username/ssrms.git
+   cd ssrms
    ```
 
 2. **Install dependencies**
@@ -91,7 +91,10 @@ To create a fair, transparent, and efficient ecosystem for spaza shop operations
 4. **Set up database**
    - Go to your Supabase Dashboard
    - Navigate to SQL Editor
-   - Run the migration files in `supabase/migrations/` in order
+   - Run the migration files in `supabase/migrations/` in numerical order:
+     1. `001_create_user_profiles_system.sql`
+     2. `002_create_spaza_shops_table.sql` 
+     3. `003_create_compliance_system.sql`
 
 5. **Start development server**
    ```bash
