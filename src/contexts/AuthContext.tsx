@@ -144,18 +144,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (data: SignUpData): Promise<{ success: boolean; error?: string }> => {
     try {
+      // First, try to sign up the user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
-          emailRedirectTo: undefined, // Disable email confirmation
+          emailRedirectTo: undefined,
           data: {
             full_name: data.name,
             role: data.userType,
             phone: data.phone,
             address: data.address,
-            business_name: data.businessName || null,
-            department: data.department || null
+            business_name: data.businessName || undefined,
+            department: data.department || undefined
           }
         }
       });
@@ -165,14 +166,67 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, error: authError.message };
       }
 
-      if (authData.user) {
-        // Wait a moment for the trigger to create the profile
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        await loadUserProfile(authData.user);
-        return { success: true };
+      if (!authData.user) {
+        return { success: false, error: 'Failed to create user account' };
       }
 
-      return { success: false, error: 'Failed to create user' };
+      // Wait for the database trigger to create the profile
+      let retries = 0;
+      const maxRetries = 5;
+      
+      while (retries < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        try {
+          const { data: profile, error: profileError } = await supabase
+            .from('user_profiles')
+            .select('*')
+            .eq('id', authData.user.id)
+            .single();
+
+          if (profile) {
+            // Profile found, load it
+            await loadUserProfile(authData.user);
+            return { success: true };
+          }
+          
+          if (profileError && profileError.code !== 'PGRST116') {
+            // Error other than "not found"
+            console.error('Profile lookup error:', profileError);
+          }
+        } catch (error) {
+          console.error('Profile check error:', error);
+        }
+        
+        retries++;
+      }
+      
+      // If we get here, the profile wasn't created by the trigger
+      // Try to create it manually
+      try {
+        const { error: insertError } = await supabase
+          .from('user_profiles')
+          .insert({
+            id: authData.user.id,
+            full_name: data.name,
+            role: data.userType,
+            phone: data.phone,
+            address: data.address,
+            business_name: data.businessName || null,
+            department: data.department || null
+          });
+
+        if (insertError) {
+          console.error('Manual profile creation error:', insertError);
+          return { success: false, error: 'Failed to create user profile' };
+        }
+
+        await loadUserProfile(authData.user);
+        return { success: true };
+      } catch (error) {
+        console.error('Manual profile creation failed:', error);
+        return { success: false, error: 'Failed to create user profile' };
+      }
     } catch (error) {
       console.error('Sign up error:', error);
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
