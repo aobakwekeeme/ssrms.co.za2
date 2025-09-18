@@ -9,6 +9,8 @@
 The software system currently implements a comprehensive frontend interface that demonstrates the digitization and streamlining of traditionally paper-based, fragmented processes of spaza shop registration, document verification, compliance monitoring, and community feedback collection, ultimately creating a safer and more trustworthy local commerce ecosystem.
 
 **Current Implementation Status:** The platform has been developed as a fully functional frontend application with role-based authentication, comprehensive dashboards, and detailed information architecture. The system currently operates with demo data and simulated workflows to demonstrate the complete user experience across all three user roles.
+
+**Latest Update:** The system has been upgraded with full Supabase integration, including PostgreSQL database with Row Level Security, real-time authentication, and user management. The platform now supports actual user registration and data persistence.
 ## Glossary
 
 **Spaza Shop:** Small informal convenience stores typically located in South African townships and residential areas, selling basic household items, groceries, and everyday necessities to local communities.
@@ -133,19 +135,24 @@ The system has been designed to integrate with existing government databases, ac
 ### Current System Architecture
 The implemented system features:
 - **Role-based Authentication**: Three distinct user roles with appropriate access controls
+- **Database Integration**: PostgreSQL database with Supabase backend
+- **Row Level Security**: Comprehensive RLS policies for data protection
 - **Responsive Design**: Mobile-first approach using Tailwind CSS
 - **Comprehensive Information Architecture**: Complete set of informational pages including compliance standards, privacy policy (POPIA-compliant), and support documentation
 - **Dashboard Interfaces**: Customized dashboards for each user role showing relevant metrics, actions, and information
-- **Demo Data System**: Functional demonstration using hardcoded data to simulate real-world scenarios
+- **Real-time Data**: Live data synchronization with Supabase real-time features
 - **Navigation Structure**: Intuitive navigation with proper routing between all system components
 
 ### Technical Implementation Details
 - **Frontend Framework**: React 18.3.1 with TypeScript for type safety
+- **Backend Service**: Supabase 2.57.4 for authentication, database, and real-time features
+- **Database**: PostgreSQL with Row Level Security policies
 - **Styling**: Tailwind CSS for responsive, utility-first styling
 - **Routing**: React Router DOM for client-side navigation
 - **State Management**: React Context API for authentication and user state
 - **Icons**: Lucide React for consistent iconography
 - **Build System**: Vite for fast development and optimized production builds
+- **Authentication**: Supabase Auth with email/password and role-based access
+- **Data Layer**: TypeScript-generated types from database schema
 ---
 
-*This document serves as the foundational understanding of the SpazaShop Registration Management System domain and reflects the current implementation status. It will continue to be updated as the project evolves with backend integration and additional features.*
