@@ -20,7 +20,8 @@ export default function LandingPage() {
   };
 
   const handleRoleSpecificRegister = (role: 'customer' | 'shop_owner' | 'government_official') => {
-    setDefaultRole(role);
+    const mappedRole = role === 'shop_owner' ? 'shop-owner' : role === 'government_official' ? 'government' : 'customer';
+    setDefaultRole(mappedRole as 'customer' | 'shop-owner' | 'government');
     setAuthMode('signup');
     setShowAuthModal(true);
   };

@@ -7,11 +7,11 @@ interface AuthModalProps {
   onClose: () => void;
   mode: 'signin' | 'signup';
   onModeChange: (mode: 'signin' | 'signup') => void;
-  defaultRole?: 'customer' | 'shop_owner' | 'government_official';
+  defaultRole?: 'customer' | 'shop-owner' | 'government';
 }
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChange, defaultRole = 'customer' }) => {
-  const { signIn } = useAuth();
+  const { signIn, signUp, loading } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -23,37 +23,46 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
     department: ''
   });
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [emailConfirmationSent, setEmailConfirmationSent] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
 
     try {
       if (mode === 'signin') {
-        const success = signIn(formData.email, formData.password);
-        if (success) {
+        const result = await signIn(formData.email, formData.password);
+        if (result.success) {
           onClose();
         } else {
-          setError('Invalid email or password');
+          setError(result.error || 'Invalid email or password');
         }
       } else {
-        // For signup, simulate email confirmation
         if (formData.password.length < 6) {
           setError('Password must be at least 6 characters');
           return;
         }
         
-        // Simulate registration success
-        setEmailConfirmationSent(true);
+        const result = await signUp({
+          email: formData.email,
+          password: formData.password,
+          name: formData.name,
+          phone: formData.phone,
+          address: formData.address,
+          userType: formData.userType as 'customer' | 'shop-owner' | 'government',
+          businessName: formData.businessName,
+          department: formData.department,
+        });
+
+        if (result.success) {
+          setEmailConfirmationSent(true);
+        } else {
+          setError(result.error || 'Registration failed');
+        }
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -208,8 +217,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
               >
                 <option value="customer">Customer - Find and review spaza shops</option>
-                <option value="shop_owner">Shop Owner - Register and manage my spaza shop</option>
-                <option value="government_official">Government Official - Verify and monitor shops</option>
+                <option value="shop-owner">Shop Owner - Register and manage my spaza shop</option>
+                <option value="government">Government Official - Verify and monitor shops</option>
               </select>
             </div>
           )}
@@ -302,7 +311,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
             </div>
           )}
 
-          {mode === 'signup' && formData.userType === 'government_official' && (
+          {mode === 'signup' && formData.userType === 'government' && (
             <div>
               <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-2">
                 Department *
@@ -351,10 +360,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={loading}
             className="w-full py-4 bg-gradient-to-r from-teal-600 to-blue-600 text-white rounded-lg hover:from-teal-700 hover:to-blue-700 focus:ring-4 focus:ring-teal-200 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
-            {isLoading ? (
+            {loading ? (
               <div className="flex items-center justify-center">
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
                 {mode === 'signin' ? 'Signing in...' : 'Creating account...'}
@@ -390,15 +399,15 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
               <div className="space-y-2 text-xs text-blue-800">
                 <div className="border-b border-blue-200 pb-1">
                   <div className="font-medium">Shop Owner</div>
-                  <div>mokoena@gmail.com / Mokoena2025</div>
+                  <div>demo-shop@example.com / password123</div>
                 </div>
                 <div className="border-b border-blue-200 pb-1">
                   <div className="font-medium">Government Official</div>
-                  <div>masia@gmail.com / Masia2025</div>
+                  <div>demo-gov@example.com / password123</div>
                 </div>
                 <div>
                   <div className="font-medium">Customer</div>
-                  <div>kamba@gmail.com / Kamba2025</div>
+                  <div>demo-customer@example.com / password123</div>
                 </div>
               </div>
             </div>
