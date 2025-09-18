@@ -4,10 +4,11 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5.3-blue.svg)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-5.4.2-646CFF.svg)](https://vitejs.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4.1-38B2AC.svg)](https://tailwindcss.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-2.57.4-3ECF8E.svg)](https://supabase.com/)
 
 ## 🏪 Overview
 
-The **Spaza Shop Registration & Management System (SSRMS)** is a comprehensive digital platform designed to streamline the registration, verification, and compliance monitoring of spaza shops across South Africa. The system empowers local entrepreneurs while ensuring quality standards and regulatory compliance for customer protection.
+The **Spaza Shop Registration & Management System (SSRMS)** is a comprehensive full-stack digital platform designed to streamline the registration, verification, and compliance monitoring of spaza shops across South Africa. Built with React, TypeScript, and Supabase, the system empowers local entrepreneurs while ensuring quality standards and regulatory compliance for customer protection.
 
 ### 🎯 Mission
 
@@ -50,8 +51,9 @@ To create a fair, transparent, and efficient ecosystem for spaza shop operations
 - **Responsive Design**: Mobile-first approach with Tailwind CSS
 - **Type Safety**: Full TypeScript implementation
 - **Modern UI**: Clean, intuitive interface with Lucide React icons
-- **Authentication**: Secure role-based access control
-- **Real-time Updates**: Live compliance monitoring
+- **Authentication**: Secure role-based access control with Supabase Auth
+- **Database**: PostgreSQL with Row Level Security (RLS)
+- **Real-time Updates**: Live compliance monitoring with Supabase real-time
 - **Scalable Architecture**: Modular component structure
 
 ## 🚀 Quick Start
@@ -77,31 +79,29 @@ To create a fair, transparent, and efficient ecosystem for spaza shop operations
    yarn install
    ```
 
-3. **Start development server**
+3. **Set up Supabase**
+   - Create a new project at [supabase.com](https://supabase.com)
+   - Copy your project URL and anon key
+   - Update the `.env` file with your Supabase credentials:
+     ```
+     VITE_SUPABASE_URL=your_supabase_project_url
+     VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+     ```
+
+4. **Create database tables**
+   ```bash
+   npm run db:reset
+   ```
+
+5. **Start development server**
    ```bash
    npm run dev
    # or
    yarn dev
    ```
 
-4. **Open your browser**
+6. **Open your browser**
    Navigate to `http://localhost:5173`
-
-## 🔐 Demo Credentials
-
-For testing purposes, use these demo accounts:
-
-### Shop Owner
-- **Email**: `mokoena@gmail.com`
-- **Password**: `Mokoena2025`
-
-### Government Official
-- **Email**: `masia@gmail.com`
-- **Password**: `Masia2025`
-
-### Customer
-- **Email**: `kamba@gmail.com`
-- **Password**: `Kamba2025`
 
 ## 🏗️ Project Structure
 
@@ -116,6 +116,8 @@ src/
 │   ├── GovernmentDashboard.tsx          # Government official dashboard
 │   ├── ShopProfile.tsx                  # Shop profile and details page
 │   └── RegisterModal.tsx                # Registration modal component
+├── lib/                                 # Utility libraries
+│   └── supabase.ts                      # Supabase client configuration
 ├── pages/                               # Static and informational pages
 │   ├── AboutPage.tsx                    # About SSRMS page
 │   ├── FeaturesPage.tsx                 # Platform features overview
@@ -126,7 +128,9 @@ src/
 │   ├── TermsOfServicePage.tsx           # Terms of service
 │   └── CompliancePage.tsx               # Compliance standards and process
 ├── contexts/                            # React contexts
-│   └── AuthContext.tsx                  # Authentication context with demo users
+│   └── AuthContext.tsx                  # Authentication context with Supabase integration
+├── supabase/                            # Supabase configuration
+│   └── migrations/                      # Database migration files
 ├── App.tsx                              # Main application with routing
 ├── main.tsx                             # Application entry point
 └── index.css                            # Global Tailwind CSS styles
@@ -140,6 +144,7 @@ src/
 | `npm run build` | Build for production |
 | `npm run preview` | Preview production build |
 | `npm run lint` | Run ESLint |
+| `npm run db:reset` | Reset Supabase database with migrations |
 
 ## 🔧 Technology Stack
 
@@ -151,11 +156,18 @@ src/
 - **React Router DOM 7.8.2** - Client-side routing
 - **Lucide React 0.344.0** - Icon library
 
+### Backend & Database
+- **Supabase 2.57.4** - Backend-as-a-Service platform
+- **PostgreSQL** - Relational database with Row Level Security
+- **Supabase Auth** - Authentication and user management
+- **Supabase Real-time** - Live data synchronization
+
 ### Development Tools
 - **ESLint** - Code linting
 - **TypeScript ESLint** - TypeScript-specific linting
 - **PostCSS** - CSS processing
 - **Autoprefixer** - CSS vendor prefixing
+- **Supabase CLI** - Database management and migrations
 
 ## 🌐 Deployment
 
@@ -219,16 +231,18 @@ We use conventional commits for clear project history:
 ## 🗺️ Roadmap
 
 ### Phase 1: Foundation ✅
-- [ ] Core UI components
-- [ ] Authentication system
-- [ ] Role-based dashboards
-- [ ] Responsive design
+- [x] Core UI components
+- [x] Authentication system with Supabase
+- [x] Role-based dashboards
+- [x] Responsive design
+- [x] Database schema with RLS
+- [x] User registration and authentication
 
-### Phase 2: Backend Integration 🚧
-- [ ] Supabase database setup
-- [ ] User registration and authentication
-- [ ] Shop data management
-- [ ] Document upload system
+### Phase 2: Enhanced Features 🚧
+- [ ] Shop registration workflow
+- [ ] Document upload and verification
+- [ ] Real-time compliance monitoring
+- [ ] Government approval workflows
 
 ### Phase 3: Advanced Features 📋
 - [ ] Real-time notifications
@@ -255,16 +269,17 @@ We use conventional commits for clear project history:
 - Mobile device for customers and shop owners
 
 ### Current Demo Limitations
-- Authentication uses hardcoded demo users (no real backend)
-- Data is not persisted between sessions
+- Shop registration workflow is not fully implemented
+- Document upload functionality is simulated
 - File uploads are simulated
 - Maps and charts show placeholder content
-- No real-time notifications or updates
+- Payment processing not implemented
 
 ## 🔒 Security
 
 - Role-based access control
-- Secure authentication flow
+- Secure authentication with Supabase Auth
+- Row Level Security (RLS) policies
 - Input validation and sanitization
 - HTTPS enforcement in production
 - Regular security audits
