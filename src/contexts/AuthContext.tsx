@@ -123,12 +123,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (authError) {
+        console.error('Auth signup error:', authError);
         return { success: false, error: authError.message };
       }
 
       if (!authResult.user) {
+        console.error('No user returned from auth signup');
         return { success: false, error: 'Failed to create user account' };
       }
+
+      console.log('User created successfully:', authResult.user.id);
 
       // Create user profile
       const { error: profileError } = await supabase
@@ -145,9 +149,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (profileError) {
         console.error('Profile creation error:', profileError);
+        console.error('Profile data attempted:', {
+          id: authResult.user.id,
+          full_name: data.name,
+          role: data.userType,
+          phone: data.phone,
+          address: data.address,
+          business_name: data.businessName || null,
+          department: data.department || null,
+        });
         return { success: false, error: 'Failed to create user profile' };
       }
 
+      console.log('Profile created successfully for user:', authResult.user.id);
       return { success: true };
     } catch (error) {
       console.error('Sign up error:', error);
