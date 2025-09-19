@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { ArrowLeft, Share, MoreHorizontal, MapPin, Phone, Mail, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -44,6 +44,7 @@ export default function ShopProfile() {
         <div className="relative px-6 pb-6">
           <div className="max-w-6xl mx-auto">
             {/* Shop Logo */}
+            
             <div className="absolute -top-20 left-0 w-24 h-24 bg-white rounded-lg border-4 border-white shadow-sm"></div>
             
             {/* Shop Info */}
@@ -131,7 +132,7 @@ export default function ShopProfile() {
                 </div>
                 <div>
                   <h4 className="font-medium text-gray-900 mb-1">Owner</h4>
-                  <p className="text-gray-600">Thabo Mokoena</p>
+                  <p className="text-gray-600">Billy Mokoena</p>
                 </div>
               </div>
             </div>
@@ -162,7 +163,7 @@ export default function ShopProfile() {
                   <MapPin className="w-5 h-5 text-gray-400 mt-1" />
                   <div>
                     <p className="font-medium text-gray-900">Address</p>
-                    <p className="text-gray-600">45 Vilakazi Street, Soweto, Johannesburg, 1804</p>
+                    <p className="text-gray-600">45 Nelson Mandela Dr, Mthatha, 1804</p>
                   </div>
                 </div>
                 

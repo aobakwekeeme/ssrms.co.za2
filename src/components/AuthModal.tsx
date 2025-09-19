@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Eye, EyeOff, Mail, CheckCircle, AlertCircle } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -33,7 +33,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
     try {
       if (mode === 'signin') {
         const result = await signIn(formData.email, formData.password);
-        if (result.success) {
+        if (result) {
           onClose();
         } else {
           setError(result.error || 'Invalid email or password');
@@ -172,12 +172,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
         <div className="bg-gradient-to-r from-teal-600 to-blue-600 p-6 rounded-t-2xl">
           <div className="flex justify-between items-center text-white">
             <div>
-              <div className="flex items-center space-x-2 mb-2">
-                <img src="/logo.png" alt="SSRMS Logo" className="w-10 h-10 rounded-lg" />
-                <h2 className="text-2xl font-bold">
-                  {mode === 'signin' ? 'Welcome Back' : 'Create Account'}
-                </h2>
-              </div>
+              <h2 className="text-2xl font-bold">
+                {mode === 'signin' ? 'Welcome Back' : 'Create Account'}
+              </h2>
               <p className="text-white/90 mt-1">
                 {mode === 'signin' 
                   ? 'Sign in to access your dashboard' 
@@ -399,15 +396,15 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
               <div className="space-y-2 text-xs text-blue-800">
                 <div className="border-b border-blue-200 pb-1">
                   <div className="font-medium">Shop Owner</div>
-                  <div>demo-shop@example.com / password123</div>
+                  <div>mokoena@gmail.com / Mokoena2025</div>
                 </div>
                 <div className="border-b border-blue-200 pb-1">
                   <div className="font-medium">Government Official</div>
-                  <div>demo-gov@example.com / password123</div>
+                  <div>masia@gmail.com / Masia2025</div>
                 </div>
                 <div>
                   <div className="font-medium">Customer</div>
-                  <div>demo-customer@example.com / password123</div>
+                  <div>kamba@gmail.com / Kamba2025</div>
                 </div>
               </div>
             </div>

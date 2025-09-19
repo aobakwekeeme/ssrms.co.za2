@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '../lib/supabase';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 import type { Database } from '../lib/supabase';
@@ -32,14 +32,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export { AuthContext };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined || context === null) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -55,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_, session) => {
       if (session?.user) {
         await loadUserProfile(session.user);
       } else {
@@ -109,7 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       return { success: false, error: 'Sign in failed' };
-    } catch (error) {
+    } catch {
       return { success: false, error: 'An unexpected error occurred' };
     }
   };

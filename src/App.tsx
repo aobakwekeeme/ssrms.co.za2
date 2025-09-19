@@ -1,6 +1,6 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { useAuth } from './hooks/useAuth';
 import LandingPage from './components/LandingPage';
 import SignInPage from './components/SignInPage';
 import ShopOwnerDashboard from './components/ShopOwnerDashboard';
@@ -10,11 +10,11 @@ import ShopProfile from './components/ShopProfile';
 import AboutPage from './pages/AboutPage';
 import FeaturesPage from './pages/FeaturesPage';
 import SupportPage from './pages/SupportPage';
+import CompliancePage from './pages/CompliancePage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfServicePage from './pages/TermsOfServicePage';
-import CompliancePage from './pages/CompliancePage';
-import ContactPage from './pages/ContactPage';
 import FeedbackPage from './pages/FeedbackPage';
+
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -28,7 +28,7 @@ function AppRoutes() {
         </div>
       </div>
     );
-  }
+  }  
 
   if (!user) {
     return (
@@ -38,10 +38,9 @@ function AppRoutes() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/features" element={<FeaturesPage />} />
         <Route path="/support" element={<SupportPage />} />
+        <Route path="/compliance" element={<CompliancePage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-        <Route path="/compliance" element={<CompliancePage />} />
-        <Route path="/contact" element={<ContactPage />} />
         <Route path="/feedback" element={<FeedbackPage />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
@@ -57,9 +56,7 @@ function AppRoutes() {
         </>
       )}
       {user.role === 'government' && (
-        <>
-          <Route path="/dashboard" element={<GovernmentDashboard />} />
-        </>
+        <Route path="/dashboard" element={<GovernmentDashboard />} />
       )}
       {user.role === 'customer' && (
         <>
@@ -67,14 +64,12 @@ function AppRoutes() {
           <Route path="/shop-profile" element={<ShopProfile />} />
         </>
       )}
-      {/* Make these pages available to all users */}
       <Route path="/about" element={<AboutPage />} />
       <Route path="/features" element={<FeaturesPage />} />
       <Route path="/support" element={<SupportPage />} />
+      <Route path="/compliance" element={<CompliancePage />} />
       <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
       <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-      <Route path="/compliance" element={<CompliancePage />} />
-      <Route path="/contact" element={<ContactPage />} />
       <Route path="/feedback" element={<FeedbackPage />} />
       <Route path="*" element={<Navigate to="/dashboard" />} />
     </Routes>

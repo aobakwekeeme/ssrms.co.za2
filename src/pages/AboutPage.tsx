@@ -35,22 +35,22 @@ export default function AboutPage() {
 
   const team = [
     {
-      name: 'Dr. Sarah Mthembu',
+      name: 'Tshimangadzo Surprise Masia',
       role: 'Chief Executive Officer',
       description: 'Former Director of Small Business Development at DTI with 15+ years in economic empowerment.'
     },
     {
-      name: 'Thabo Sithole',
+      name: 'Luxolo Mkhathazo',
       role: 'Chief Technology Officer',
       description: 'Tech entrepreneur with expertise in government systems and digital transformation.'
     },
     {
-      name: 'Nomsa Khumalo',
+      name: 'Billy Mokoena',
       role: 'Head of Community Relations',
       description: 'Community development specialist with deep township business network connections.'
     },
     {
-      name: 'Inspector John Molefe',
+      name: 'Khanyisa Kamba',
       role: 'Compliance Director',
       description: 'Former municipal health inspector with 20+ years in food safety and business regulation.'
     }
@@ -118,7 +118,7 @@ export default function AboutPage() {
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">Our Story</h2>
           <div className="prose prose-lg mx-auto text-gray-700">
             <p className="mb-6">
-              Founded in 2023, SSRMS emerged from a critical need to address food safety concerns and 
+              Founded in 2025, SSRMS emerged from a critical need to address food safety concerns and 
               support local entrepreneurship in South African townships. Following several food safety 
               incidents in informal retail sectors, government officials, community leaders, and 
               technology experts came together to create a solution.
@@ -128,17 +128,6 @@ export default function AboutPage() {
               and compliance systems were inadequate for the digital age. We recognized that local 
               entrepreneurs needed support, not barriers, while maintaining the highest standards 
               for community safety.
-            </p>
-            <p className="mb-6">
-              Today, SSRMS serves over 1,200 registered spaza shops across South Africa, working 
-              with 50+ government partners and serving thousands of customers daily. We've digitized 
-              the entire compliance process, making it easier for shop owners to maintain standards 
-              and for officials to monitor compliance effectively.
-            </p>
-            <p>
-              Our success is measured not just in numbers, but in the trust we've rebuilt between 
-              communities and their local shops, the entrepreneurs we've empowered, and the safer 
-              shopping experiences we've created for families across South Africa.
             </p>
           </div>
         </div>
