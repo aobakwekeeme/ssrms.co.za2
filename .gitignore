@@ -116,9 +116,9 @@ database_dumps/
 *.dump.gz
 
 # Supabase
-supabase/.branches
-supabase/.temp
-supabase/config.toml
+# supabase/.branches
+# supabase/.temp
+# supabase/config.toml
 
 # Prisma
 prisma/migrations/migration_lock.toml
