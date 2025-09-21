@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 
 export default function ShopOwnerDashboard() {
-  const { user, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth();
 
   const stats = [
     { title: 'Compliance Score', value: '75%', change: '+5%', isPositive: true },
@@ -54,7 +54,7 @@ export default function ShopOwnerDashboard() {
               <img src="/logo.png" alt="SSRMS Logo" className="w-10 h-10 rounded-lg" />
               <h1 className="text-2xl font-bold text-white">Shop Owner Dashboard</h1>
             </Link>
-            <p className="text-emerald-100">Welcome back, {user?.name}</p>
+            <p className="text-emerald-100">Welcome back, {profile?.full_name || user?.email}</p>
           </div>
           <div className="flex items-center space-x-3">
             <button 

@@ -3,7 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { Star, LogOut } from 'lucide-react';
 
 export default function CustomerDashboard() {
-  const { user, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth();
 
   const stats = [
     { title: 'Favorited Shops', value: '12' },
@@ -47,7 +47,7 @@ export default function CustomerDashboard() {
               <img src="/logo.png" alt="SSRMS Logo" className="w-10 h-10 rounded-lg" />
               <h1 className="text-2xl font-bold text-white">Customer Dashboard</h1>
             </Link>
-            <p className="text-pink-100">Welcome back, {user?.name}</p>
+            <p className="text-pink-100">Welcome back, {profile?.full_name || user?.email}</p>
           </div>
           <div className="flex items-center space-x-3">
             <button 

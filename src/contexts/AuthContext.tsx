@@ -1,31 +1,27 @@
 import { createContext, useState, useEffect, ReactNode } from 'react';
-import { supabase } from '../lib/supabase';
-import type { User as SupabaseUser } from '@supabase/supabase-js';
-import type { Database } from '../lib/supabase';
+import { User, Session } from '@supabase/supabase-js';
+import { supabase } from '../integrations/supabase/client';
 
-type UserProfile = Database['public']['Tables']['user_profiles']['Row'];
-
-interface User extends UserProfile {
-  email: string;
+interface Profile {
+  id: string;
+  user_id: string;
+  full_name: string | null;
+  phone: string | null;
+  role: 'customer' | 'shop_owner' | 'government_official';
+  avatar_url: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 interface AuthContextType {
   user: User | null;
-  loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signUp: (data: SignUpData) => Promise<{ success: boolean; error?: string }>;
+  session: Session | null;
+  profile: Profile | null;
+  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, userData: { full_name: string; role: string; phone?: string }) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
-}
-
-interface SignUpData {
-  email: string;
-  password: string;
-  name: string;
-  phone: string;
-  address: string;
-  userType: 'customer' | 'shop-owner' | 'government';
-  businessName?: string;
-  department?: string;
+  signInWithGoogle: () => Promise<{ error: any }>;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -34,140 +30,101 @@ export { AuthContext };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        loadUserProfile(session.user);
-      } else {
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          // Fetch user profile
+          setTimeout(async () => {
+            try {
+              const { data: profileData } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('user_id', session.user.id)
+                .maybeSingle();
+              
+              setProfile(profileData as Profile);
+            } catch (error) {
+              console.error('Error fetching profile:', error);
+            }
+          }, 0);
+        } else {
+          setProfile(null);
+        }
+        
         setLoading(false);
       }
-    });
+    );
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_, session) => {
-      if (session?.user) {
-        await loadUserProfile(session.user);
-      } else {
-        setUser(null);
-        setLoading(false);
-      }
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  const loadUserProfile = async (authUser: SupabaseUser) => {
-    try {
-      const { data: profile, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('id', authUser.id)
-        .single();
-
-      if (error) {
-        console.error('Error loading user profile:', error);
-        setUser(null);
-      } else if (profile) {
-        setUser({
-          ...profile,
-          email: authUser.email || '',
-        });
-      }
-    } catch (error) {
-      console.error('Error loading user profile:', error);
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
+  const signIn = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    return { error };
   };
 
-  const signIn = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        return { success: false, error: error.message };
+  const signUp = async (email: string, password: string, userData: { full_name: string; role: string; phone?: string }) => {
+    const redirectUrl = `${window.location.origin}/`;
+    
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: redirectUrl,
+        data: {
+          full_name: userData.full_name,
+          role: userData.role,
+          phone: userData.phone
+        }
       }
-
-      if (data.user) {
-        await loadUserProfile(data.user);
-        return { success: true };
-      }
-
-      return { success: false, error: 'Sign in failed' };
-    } catch {
-      return { success: false, error: 'An unexpected error occurred' };
-    }
+    });
+    return { error };
   };
 
-  const signUp = async (data: SignUpData): Promise<{ success: boolean; error?: string }> => {
-    try {
-      // Sign up the user
-      const { data: authResult, error: authError } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-      });
-
-      if (authError) {
-        console.error('Auth signup error:', authError);
-        return { success: false, error: authError.message };
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/`
       }
-
-      if (!authResult.user) {
-        console.error('No user returned from auth signup');
-        return { success: false, error: 'Failed to create user account' };
-      }
-
-      console.log('User created successfully:', authResult.user.id);
-
-      // Create user profile
-      const { error: profileError } = await supabase
-        .from('user_profiles')
-        .insert({
-          id: authResult.user.id,
-          full_name: data.name,
-          role: data.userType,
-          phone: data.phone,
-          address: data.address,
-          business_name: data.businessName || null,
-          department: data.department || null,
-        });
-
-      if (profileError) {
-        console.error('Profile creation error:', profileError);
-        console.error('Profile data attempted:', {
-          id: authResult.user.id,
-          full_name: data.name,
-          role: data.userType,
-          phone: data.phone,
-          address: data.address,
-          business_name: data.businessName || null,
-          department: data.department || null,
-        });
-        return { success: false, error: 'Failed to create user profile' };
-      }
-
-      console.log('Profile created successfully for user:', authResult.user.id);
-      return { success: true };
-    } catch (error) {
-      console.error('Sign up error:', error);
-      return { success: false, error: 'An unexpected error occurred during sign up' };
-    }
+    });
+    return { error };
   };
 
-  const signOut = async (): Promise<void> => {
+  const signOut = async () => {
     await supabase.auth.signOut();
-    setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      session, 
+      profile, 
+      signIn, 
+      signUp, 
+      signOut, 
+      signInWithGoogle, 
+      loading 
+    }}>
       {children}
     </AuthContext.Provider>
   );

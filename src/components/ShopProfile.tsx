@@ -44,7 +44,6 @@ export default function ShopProfile() {
         <div className="relative px-6 pb-6">
           <div className="max-w-6xl mx-auto">
             {/* Shop Logo */}
-            
             <div className="absolute -top-20 left-0 w-24 h-24 bg-white rounded-lg border-4 border-white shadow-sm"></div>
             
             {/* Shop Info */}

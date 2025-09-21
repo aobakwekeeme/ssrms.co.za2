@@ -1,30 +1,8 @@
-import React from 'react';
+
 import { Link } from 'react-router-dom';
 import { Store, Shield, Users } from 'lucide-react';
-import AuthModal from './AuthModal';
 
-export default function LandingPage() {
-  const [showAuthModal, setShowAuthModal] = React.useState(false);
-  const [authMode, setAuthMode] = React.useState<'signin' | 'signup'>('signin');
-  const [defaultRole, setDefaultRole] = React.useState<'customer' | 'shop_owner' | 'government_official'>('customer');
-
-  const handleSignInClick = () => {
-    setAuthMode('signin');
-    setShowAuthModal(true);
-  };
-
-  const handleRegisterClick = () => {
-    setDefaultRole('customer');
-    setAuthMode('signup');
-    setShowAuthModal(true);
-  };
-
-  const handleRoleSpecificRegister = (role: 'customer' | 'shop_owner' | 'government_official') => {
-    const mappedRole = role === 'shop_owner' ? 'shop-owner' : role === 'government_official' ? 'government' : 'customer';
-    setDefaultRole(mappedRole as 'customer' | 'shop-owner' | 'government');
-    setAuthMode('signup');
-    setShowAuthModal(true);
-  };
+function LandingPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -38,18 +16,18 @@ export default function LandingPage() {
             <div className="text-2xl font-bold text-gray-900">SSRMS</div>
           </button>
           <div className="flex items-center space-x-4">
-            <button
-              onClick={handleSignInClick}
+            <Link
+              to="/signin"
               className="text-gray-600 hover:text-gray-900 font-medium"
             >
               Sign In
-            </button>
-            <button
-              onClick={handleRegisterClick}
+            </Link>
+            <Link
+              to="/signin"
               className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
             >
               Register
-            </button>
+            </Link>
           </div>
         </div>
       </header>
@@ -80,8 +58,8 @@ export default function LandingPage() {
           </p>
           
           <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6 mb-12">
-            <button
-              onClick={handleRegisterClick}
+            <Link
+              to="/signin"
               className="group bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white px-10 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
             >
               <span className="flex items-center">
@@ -90,7 +68,7 @@ export default function LandingPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </span>
-            </button>
+            </Link>
             <button 
               onClick={() => {
                 const featuresSection = document.getElementById('features-section');
@@ -191,12 +169,12 @@ export default function LandingPage() {
                 Register your spaza shop, manage compliance documentation, track business 
                 performance, and access government oversight support.
               </p>
-              <button
-                onClick={() => handleRoleSpecificRegister('shop_owner')}
+              <Link
+                to="/signin"
                 className="bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
               >
                 Register as Shop
-              </button>
+              </Link>
             </div>
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 text-center shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 group hover:scale-105">
               <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-300">
@@ -207,12 +185,12 @@ export default function LandingPage() {
                 Review shop applications, monitor compliance rates, manage inspections, 
                 and ensure fair ownership distribution across your jurisdiction.
               </p>
-              <button
-                onClick={() => handleRoleSpecificRegister('government_official')}
+              <Link
+                to="/signin"
                 className="bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
               >
                 Register as Government
-              </button>
+              </Link>
             </div>
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 text-center shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 group hover:scale-105">
               <div className="w-20 h-20 bg-gradient-to-br from-pink-100 to-pink-200 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-300">
@@ -223,12 +201,12 @@ export default function LandingPage() {
                 Find verified spaza shops in your area, leave reviews, report safety issues, 
                 and help improve community standards.
               </p>
-              <button
-                onClick={() => handleRoleSpecificRegister('customer')}
+              <Link
+                to="/signin"
                 className="bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
               >
                 Register as Customer
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -312,15 +290,8 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
-
-      {/* Auth Modal */}
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        mode={authMode}
-        onModeChange={setAuthMode}
-        defaultRole={defaultRole}
-      />
     </div>
   );
 }
+
+export default LandingPage;

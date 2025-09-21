@@ -3,7 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { LogOut } from 'lucide-react';
 
 export default function GovernmentDashboard() {
-  const { user, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth();
 
   const stats = [
     { title: 'Total Registered Shops', value: '1,245', change: '+12%', isPositive: true },
@@ -53,7 +53,7 @@ export default function GovernmentDashboard() {
               <img src="/logo.png" alt="SSRMS Logo" className="w-10 h-10 rounded-lg" />
               <h1 className="text-2xl font-bold text-white">Government Official Dashboard</h1>
             </Link>
-            <p className="text-purple-100">Welcome back, {user?.name}</p>
+            <p className="text-purple-100">Welcome back, {profile?.full_name || user?.email}</p>
           </div>
           <div className="flex items-center space-x-3">
             <button 

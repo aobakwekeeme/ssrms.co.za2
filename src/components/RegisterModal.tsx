@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { useAuth } from '../hooks/useAuth';
 import { X } from 'lucide-react';
 
 interface RegisterModalProps {
@@ -7,20 +8,20 @@ interface RegisterModalProps {
 }
 
 export default function RegisterModal({ onClose, onSuccess }: RegisterModalProps) {
-  const [selectedRole, setSelectedRole] = useState<'shop-owner' | 'government' | 'customer' | ''>('');
+  const { signUp } = useAuth();
+  const [selectedRole, setSelectedRole] = useState<string>('');
   const [formData, setFormData] = useState({
-    name: '',
+    fullName: '',
     email: '',
     password: '',
     confirmPassword: '',
     phone: '',
-    address: '',
     businessName: '',
     department: ''
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string>('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -39,9 +40,19 @@ export default function RegisterModal({ onClose, onSuccess }: RegisterModalProps
       return;
     }
 
-    // Simulate registration success
-    alert(`Registration successful! You can now sign in with your credentials.`);
-    onSuccess();
+    const userData = {
+      full_name: formData.fullName,
+      role: selectedRole,
+      phone: formData.phone
+    };
+
+    const { error: signUpError } = await signUp(formData.email, formData.password, userData);
+
+    if (signUpError) {
+      setError(signUpError.message);
+    } else {
+      onSuccess();
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,200 +62,189 @@ export default function RegisterModal({ onClose, onSuccess }: RegisterModalProps
     });
   };
 
+  const roles = [
+    { id: 'customer', title: 'Customer', description: 'Browse and review local shops' },
+    { id: 'shop_owner', title: 'Shop Owner', description: 'Manage your shop and compliance' },
+    { id: 'government_official', title: 'Government Official', description: 'Monitor and regulate shops' }
+  ];
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-screen overflow-y-auto">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Register for SSRMS</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Create Account</h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600"
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5" />
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded">
-                {error}
-              </div>
-            )}
-
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Role Selection */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
                 Select Your Role
               </label>
-              <div className="space-y-2">
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="role"
-                    value="shop-owner"
-                    checked={selectedRole === 'shop-owner'}
-                    onChange={(e) => setSelectedRole(e.target.value as 'shop-owner')}
-                    className="mr-3"
-                  />
-                  <span>Shop Owner</span>
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="role"
-                    value="government"
-                    checked={selectedRole === 'government'}
-                    onChange={(e) => setSelectedRole(e.target.value as 'government')}
-                    className="mr-3"
-                  />
-                  <span>Government Official</span>
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="role"
-                    value="customer"
-                    checked={selectedRole === 'customer'}
-                    onChange={(e) => setSelectedRole(e.target.value as 'customer')}
-                    className="mr-3"
-                  />
-                  <span>Customer</span>
-                </label>
+              <div className="grid grid-cols-1 gap-3">
+                {roles.map((role) => (
+                  <label
+                    key={role.id}
+                    className={`cursor-pointer p-4 border-2 rounded-lg transition-all ${
+                      selectedRole === role.id
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="role"
+                      value={role.id}
+                      checked={selectedRole === role.id}
+                      onChange={(e) => setSelectedRole(e.target.value)}
+                      className="sr-only"
+                    />
+                    <div className="flex items-start">
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900">{role.title}</h3>
+                        <p className="text-sm text-gray-600 mt-1">{role.description}</p>
+                      </div>
+                      <div className={`w-4 h-4 rounded-full border-2 mt-1 ${
+                        selectedRole === role.id
+                          ? 'border-blue-500 bg-blue-500'
+                          : 'border-gray-300'
+                      }`}>
+                        {selectedRole === role.id && (
+                          <div className="w-2 h-2 bg-white rounded-full mx-auto mt-0.5"></div>
+                        )}
+                      </div>
+                    </div>
+                  </label>
+                ))}
               </div>
             </div>
 
-            {/* Basic Information */}
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Full Name
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                required
-                value={formData.name}
-                onChange={handleInputChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-teal-500 focus:border-teal-500"
-              />
-            </div>
+            {/* Personal Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Full Name *
+                </label>
+                <input
+                  type="text"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleInputChange}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
+              </div>
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email Address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={handleInputChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-teal-500 focus:border-teal-500"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                Phone Number
-              </label>
-              <input
-                id="phone"
-                name="phone"
-                type="tel"
-                required
-                value={formData.phone}
-                onChange={handleInputChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-teal-500 focus:border-teal-500"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="address" className="block text-sm font-medium text-gray-700">
-                Address
-              </label>
-              <input
-                id="address"
-                name="address"
-                type="text"
-                required
-                value={formData.address}
-                onChange={handleInputChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-teal-500 focus:border-teal-500"
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
             </div>
 
             {/* Role-specific fields */}
-            {selectedRole === 'shop-owner' && (
+            {selectedRole === 'shop_owner' && (
               <div>
-                <label htmlFor="businessName" className="block text-sm font-medium text-gray-700">
-                  Business Name
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Business Name *
                 </label>
                 <input
-                  id="businessName"
-                  name="businessName"
                   type="text"
-                  required
+                  name="businessName"
                   value={formData.businessName}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-teal-500 focus:border-teal-500"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
                 />
               </div>
             )}
 
-            {selectedRole === 'government' && (
+            {selectedRole === 'government_official' && (
               <div>
-                <label htmlFor="department" className="block text-sm font-medium text-gray-700">
-                  Department
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Department *
                 </label>
                 <input
-                  id="department"
-                  name="department"
                   type="text"
-                  required
+                  name="department"
                   value={formData.department}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-teal-500 focus:border-teal-500"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
                 />
               </div>
             )}
 
+            {/* Account Information */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email Address *
               </label>
               <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                value={formData.password}
+                type="email"
+                name="email"
+                value={formData.email}
                 onChange={handleInputChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-teal-500 focus:border-teal-500"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
               />
             </div>
 
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                Confirm Password
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                required
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-teal-500 focus:border-teal-500"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Password *
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Confirm Password *
+                </label>
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
+              </div>
             </div>
+
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-600 text-sm">{error}</p>
+              </div>
+            )}
 
             <button
               type="submit"
-              className="w-full bg-teal-600 hover:bg-teal-700 text-white py-2 px-4 rounded font-medium transition-colors"
+              className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
             >
-              Register
+              Create Account
             </button>
           </form>
 
@@ -252,8 +252,8 @@ export default function RegisterModal({ onClose, onSuccess }: RegisterModalProps
             <p className="text-sm text-gray-600">
               Already have an account?{' '}
               <button
-                onClick={onSuccess}
-                className="text-teal-600 hover:text-teal-500 font-medium"
+                onClick={onClose}
+                className="text-blue-600 hover:text-blue-500 font-medium"
               >
                 Sign in here
               </button>
