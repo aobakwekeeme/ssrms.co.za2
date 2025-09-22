@@ -1,48 +1,18 @@
-import { useAuth } from '../hooks/useAuth';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { LogOut } from 'lucide-react';
+import { LogOut, FileText, Calendar, Bell, TrendingUp, CheckCircle, AlertTriangle, Clock, Plus } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
+import { useUserShop } from '../hooks/useShops';
+import { useShopInspections } from '../hooks/useInspections';
+import { useShopDocuments } from '../hooks/useDocuments';
+import { useActivities } from '../hooks/useActivities';
 
-export default function ShopOwnerDashboard() {
+const ShopOwnerDashboard: React.FC = () => {
   const { user, profile, signOut } = useAuth();
-
-  const stats = [
-    { title: 'Compliance Score', value: '75%', change: '+5%', isPositive: true },
-    { title: 'Documents', value: '75%', change: '+5%', isPositive: true },
-    { title: 'Inspections', value: '75%', change: '+5%', isPositive: true },
-    { title: 'Notifications', value: '75%', change: '+5%', isPositive: true },
-  ];
-
-  const upcomingInspections = [
-    {
-      type: 'Health Inspection',
-      date: '15 June 2025, 10:00 AM',
-      status: 'Scheduled'
-    },
-    {
-      type: 'Health Inspection',
-      date: '15 June 2025, 10:00 AM',
-      status: 'Scheduled'
-    }
-  ];
-
-  const requiredDocuments = [
-    { name: 'Business Registration', status: 'Required' },
-    { name: 'Tax Clearance', status: 'Required' },
-    { name: 'Health Certificate', status: 'Required' }
-  ];
-
-  const recentActivities = [
-    { text: 'Health certificate uploaded and verified by government official', time: '2 hours ago' },
-    { text: 'Compliance score improved from 70% to 75% after safety updates', time: '4 hours ago' },
-    { text: 'Business registration documents approved by local authority', time: '1 day ago' },
-    { text: 'New customer review received - 5 stars for product quality', time: '2 days ago' }
-  ];
-
-  const complianceItems = [
-    { name: 'Documentation', percentage: 80 },
-    { name: 'Safety', percentage: 80 },
-    { name: 'License', percentage: 80 }
-  ];
+  const { shop, loading: shopLoading } = useUserShop();
+  const { inspections } = useShopInspections(shop?.id || '');
+  const { documents } = useShopDocuments(shop?.id || '');
+  const { activities } = useActivities(5);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -69,140 +39,158 @@ export default function ShopOwnerDashboard() {
       </header>
 
       <div className="max-w-7xl mx-auto p-6 space-y-6">
-        {/* Stats Row */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {stats.map((stat, index) => (
-            <div key={index} className="bg-white rounded-lg p-6 shadow-sm">
-              <div className="text-sm text-gray-600 mb-2">{stat.title}</div>
-              <div className="flex items-center justify-between">
-                <div className="text-3xl font-bold text-gray-900">{stat.value}</div>
-                <div className={`text-sm px-2 py-1 rounded ${
-                  stat.isPositive ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
-                }`}>
-                  {stat.change}
-                </div>
+        {/* Dashboard Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Compliance Score</p>
+                <p className="text-2xl font-bold text-green-600">{shop?.compliance_score || 0}%</p>
+                <p className="text-xs text-green-600 flex items-center mt-1">
+                  <TrendingUp className="w-3 h-3 mr-1" />
+                  {shop?.status === 'approved' ? 'Approved' : 'Pending'}
+                </p>
               </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Compliance Chart */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold">Shop Compliance Status</h3>
-                <button className="text-gray-600 hover:text-gray-900">View Details</button>
-              </div>
-              <div className="bg-gray-100 rounded-lg p-8 text-center">
-                <div className="text-gray-400 text-lg">Compliance Chart Placeholder</div>
-              </div>
-            </div>
-
-            {/* Compliance Items */}
-            <div className="grid grid-cols-3 gap-4">
-              {complianceItems.map((item, index) => (
-                <div key={index} className="bg-white rounded-lg p-4 shadow-sm text-center">
-                  <div className="text-sm font-medium text-gray-900 mb-2">{item.name}</div>
-                  <div className="text-2xl font-bold text-gray-900">{item.percentage}%</div>
-                </div>
-              ))}
-            </div>
-
-            {/* Recent Activities */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold">Recent Activities</h3>
-                <button className="text-gray-600 hover:text-gray-900">View All</button>
-              </div>
-              <div className="space-y-4">
-                {recentActivities.map((activity, index) => (
-                  <div key={index} className="flex items-start space-x-3">
-                    <div className="w-8 h-8 bg-gray-200 rounded-full flex-shrink-0"></div>
-                    <div className="flex-1">
-                      <p className="text-gray-900">{activity.text}</p>
-                      <p className="text-sm text-gray-500">{activity.time}</p>
-                    </div>
-                  </div>
-                ))}
+              <div className="p-3 bg-green-100 rounded-full">
+                <CheckCircle className="w-6 h-6 text-green-600" />
               </div>
             </div>
           </div>
 
-          {/* Right Column */}
-          <div className="space-y-6">
-            {/* Upcoming Inspections */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h3 className="text-lg font-semibold mb-6">Upcoming Inspections</h3>
-              <div className="space-y-4">
-                {upcomingInspections.map((inspection, index) => (
-                  <div key={index} className="border border-gray-200 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium">{inspection.type}</h4>
-                      <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">
-                        {inspection.status}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-3">{inspection.date}</p>
-                    <div className="flex space-x-2">
-                      <button className="text-sm text-gray-600 hover:text-gray-900">Reschedule</button>
-                      <button className="bg-teal-600 text-white text-sm px-3 py-1 rounded hover:bg-teal-700">
-                        View Details
-                      </button>
-                    </div>
-                  </div>
-                ))}
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Documents</p>
+                <p className="text-2xl font-bold text-blue-600">{documents.length}</p>
+                <p className="text-xs text-blue-600 flex items-center mt-1">
+                  <FileText className="w-3 h-3 mr-1" />
+                  {documents.filter(d => d.status === 'pending').length} pending
+                </p>
+              </div>
+              <div className="p-3 bg-blue-100 rounded-full">
+                <FileText className="w-6 h-6 text-blue-600" />
               </div>
             </div>
+          </div>
 
-            {/* Required Documents */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h3 className="text-lg font-semibold mb-6">Required Documents</h3>
-              <div className="space-y-4">
-                {requiredDocuments.map((doc, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-                    <span className="font-medium">{doc.name}</span>
-                    <div className="text-right">
-                      <span className="bg-red-100 text-red-600 text-xs px-2 py-1 rounded mb-2 block">
-                        {doc.status}
-                      </span>
-                      <button className="text-sm text-teal-600 hover:text-teal-700">
-                        Upload Document
-                      </button>
-                    </div>
-                  </div>
-                ))}
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Inspections</p>
+                <p className="text-2xl font-bold text-orange-600">{inspections.length}</p>
+                <p className="text-xs text-orange-600 flex items-center mt-1">
+                  <Calendar className="w-3 h-3 mr-1" />
+                  {inspections.filter(i => i.status === 'scheduled').length} scheduled
+                </p>
+              </div>
+              <div className="p-3 bg-orange-100 rounded-full">
+                <Calendar className="w-6 h-6 text-orange-600" />
               </div>
             </div>
+          </div>
 
-            {/* Quick Actions */}
-            <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h3 className="text-lg font-semibold mb-6">Quick Actions</h3>
-              <div className="grid grid-cols-2 gap-3">
-                <Link
-                  to="/shop-profile"
-                  className="bg-gray-100 hover:bg-gray-200 px-4 py-3 rounded-lg text-center font-medium transition-colors"
-                >
-                  Update Profile
-                </Link>
-                <Link
-                  to="/shop-profile"
-                  className="bg-gray-100 hover:bg-gray-200 px-4 py-3 rounded-lg text-center font-medium transition-colors"
-                >
-                  View Shop
-                </Link>
-                <button className="bg-gray-100 hover:bg-gray-200 px-4 py-3 rounded-lg font-medium transition-colors">
-                  Contact Support
-                </button>
-                <button className="bg-gray-100 hover:bg-gray-200 px-4 py-3 rounded-lg font-medium transition-colors">
-                  Settings
-                </button>
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Activities</p>
+                <p className="text-2xl font-bold text-red-600">{activities.length}</p>
+                <p className="text-xs text-red-600 flex items-center mt-1">
+                  <Bell className="w-3 h-3 mr-1" />
+                  Recent actions
+                </p>
+              </div>
+              <div className="p-3 bg-red-100 rounded-full">
+                <Bell className="w-6 h-6 text-red-600" />
               </div>
             </div>
           </div>
         </div>
+
+        {/* Main Content */}
+        {!shop && !shopLoading && (
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <div className="text-center">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Register Your Shop</h3>
+              <p className="text-gray-600 mb-6">You haven't registered your spaza shop yet. Get started now!</p>
+              <Link
+                to="/shop/register"
+                className="inline-flex items-center px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Register Shop
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {shop && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Shop Overview */}
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900">Your Shop</h3>
+                  <Link to="/shop/manage" className="text-teal-600 hover:text-teal-700 text-sm font-medium">
+                    Manage Shop
+                  </Link>
+                </div>
+                
+                <div className="flex items-start space-x-4">
+                  <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                    {shop.logo_url ? (
+                      <img src={shop.logo_url} alt={shop.name} className="w-full h-full object-cover rounded-lg" />
+                    ) : (
+                      <span className="text-2xl font-bold text-gray-600">{shop.name.charAt(0)}</span>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-lg font-medium text-gray-900">{shop.name}</h4>
+                    <p className="text-gray-600">{shop.address}</p>
+                    <div className="flex items-center space-x-4 mt-2">
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        shop.status === 'approved' ? 'bg-green-100 text-green-800' :
+                        shop.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {shop.status.charAt(0).toUpperCase() + shop.status.slice(1)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - Quick Actions */}
+            <div className="space-y-6">
+              <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">Quick Actions</h3>
+                <div className="grid grid-cols-1 gap-3">
+                  <Link
+                    to="/shop/manage"
+                    className="bg-gray-100 hover:bg-gray-200 px-4 py-3 rounded-lg text-center font-medium transition-colors"
+                  >
+                    Manage Shop
+                  </Link>
+                  <Link
+                    to="/shops"
+                    className="bg-gray-100 hover:bg-gray-200 px-4 py-3 rounded-lg text-center font-medium transition-colors"
+                  >
+                    Browse Shops
+                  </Link>
+                  <Link
+                    to="/support"
+                    className="bg-gray-100 hover:bg-gray-200 px-4 py-3 rounded-lg text-center font-medium transition-colors"
+                  >
+                    Contact Support
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
-}
+};
+
+export default ShopOwnerDashboard;

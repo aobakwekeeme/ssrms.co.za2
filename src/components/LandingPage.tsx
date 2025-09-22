@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 import { Store, Shield, Users } from 'lucide-react';
 
