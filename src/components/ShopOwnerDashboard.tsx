@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { LogOut, FileText, Calendar, Bell, TrendingUp, CheckCircle, AlertTriangle, Clock, Plus } from 'lucide-react';
+import { LogOut, FileText, Calendar, Bell, TrendingUp, CheckCircle, Plus } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useUserShop } from '../hooks/useShops';
 import { useShopInspections } from '../hooks/useInspections';
