@@ -52,6 +52,42 @@ export type Database = {
           },
         ]
       }
+      bank_details: {
+        Row: {
+          account_holder_name: string
+          account_number: string
+          account_type: string
+          bank_name: string
+          branch_code: string
+          created_at: string
+          id: string
+          shop_id: string
+          updated_at: string
+        }
+        Insert: {
+          account_holder_name: string
+          account_number: string
+          account_type?: string
+          bank_name: string
+          branch_code: string
+          created_at?: string
+          id?: string
+          shop_id: string
+          updated_at?: string
+        }
+        Update: {
+          account_holder_name?: string
+          account_number?: string
+          account_type?: string
+          bank_name?: string
+          branch_code?: string
+          created_at?: string
+          id?: string
+          shop_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           expiry_date: string | null
@@ -260,6 +296,7 @@ export type Database = {
           address: string
           banner_url: string | null
           business_registration_number: string | null
+          business_type: string | null
           categories: string[] | null
           compliance_score: number | null
           created_at: string
@@ -273,13 +310,18 @@ export type Database = {
           owner_id: string
           phone: string | null
           status: string
+          tax_clearance_certificate: string | null
           trading_hours: Json | null
+          trading_license_number: string | null
           updated_at: string
+          vat_number: string | null
+          zoning_certificate: string | null
         }
         Insert: {
           address: string
           banner_url?: string | null
           business_registration_number?: string | null
+          business_type?: string | null
           categories?: string[] | null
           compliance_score?: number | null
           created_at?: string
@@ -293,13 +335,18 @@ export type Database = {
           owner_id: string
           phone?: string | null
           status?: string
+          tax_clearance_certificate?: string | null
           trading_hours?: Json | null
+          trading_license_number?: string | null
           updated_at?: string
+          vat_number?: string | null
+          zoning_certificate?: string | null
         }
         Update: {
           address?: string
           banner_url?: string | null
           business_registration_number?: string | null
+          business_type?: string | null
           categories?: string[] | null
           compliance_score?: number | null
           created_at?: string
@@ -313,8 +360,12 @@ export type Database = {
           owner_id?: string
           phone?: string | null
           status?: string
+          tax_clearance_certificate?: string | null
           trading_hours?: Json | null
+          trading_license_number?: string | null
           updated_at?: string
+          vat_number?: string | null
+          zoning_certificate?: string | null
         }
         Relationships: []
       }

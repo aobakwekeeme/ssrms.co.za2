@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import { AuthProvider } from './contexts/AuthContext';
 import { useAuth } from './hooks/useAuth';
 import LandingPage from './components/LandingPage';
@@ -15,6 +16,10 @@ import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfServicePage from './pages/TermsOfServicePage';
 import FeedbackPage from './pages/FeedbackPage';
 import ContactPage from './pages/ContactPage';
+import ShopManagementPage from './pages/ShopManagementPage';
+import ShopBrowsePage from './pages/ShopBrowsePage';
+import ShopRegistrationForm from './components/ShopRegistrationForm';
+import ProfileManagement from './components/ProfileManagement';
 
 function AppRoutes() {
   const { user, profile, loading } = useAuth();
@@ -54,6 +59,8 @@ function AppRoutes() {
         <>
           <Route path="/dashboard" element={<ShopOwnerDashboard />} />
           <Route path="/shop-profile" element={<ShopProfile />} />
+          <Route path="/shop/manage" element={<ShopManagementPage />} />
+          <Route path="/shop/register" element={<ShopRegistrationForm />} />
         </>
       )}
       {profile?.role === 'government_official' && (
@@ -63,8 +70,10 @@ function AppRoutes() {
         <>
           <Route path="/dashboard" element={<CustomerDashboard />} />
           <Route path="/shop-profile" element={<ShopProfile />} />
+          <Route path="/shops" element={<ShopBrowsePage />} />
         </>
       )}
+      <Route path="/profile" element={<ProfileManagement />} />
       <Route path="/about" element={<AboutPage />} />
       <Route path="/features" element={<FeaturesPage />} />
       <Route path="/support" element={<SupportPage />} />
@@ -84,6 +93,7 @@ function App() {
       <Router>
         <div className="min-h-screen bg-gray-50">
           <AppRoutes />
+          <Toaster position="top-right" />
         </div>
       </Router>
     </AuthProvider>
