@@ -30,22 +30,33 @@ export default function GovernmentDashboard() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-gradient-to-r from-primary to-primary/80 text-white px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div>
-            <Link to="/" className="flex items-center space-x-2 mb-2 hover:opacity-80 transition-opacity">
-              <img src="/logo.png" alt="SSRMS Logo" className="w-10 h-10 rounded-lg" />
-              <h1 className="text-2xl font-bold text-white">Government Official Dashboard</h1>
+      <header className="gov-gradient text-white px-6 py-6 relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent"></div>
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-400 via-red-500 to-green-500"></div>
+        <div className="relative max-w-7xl mx-auto flex items-center justify-between">
+          <div className="animate-fade-in">
+            <Link to="/" className="flex items-center space-x-4 mb-3 hover:opacity-90 transition-all duration-300">
+              <div className="w-14 h-14 bg-white/15 rounded-lg flex items-center justify-center backdrop-blur-sm border border-white/20">
+                <img src="/logo.png" alt="SSRMS Logo" className="w-10 h-10 rounded-lg" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-white tracking-tight">Government Dashboard</h1>
+                <p className="text-xs text-white/80 font-medium uppercase tracking-wider">Official Portal • SSRMS</p>
+              </div>
             </Link>
-            <p className="text-primary-foreground/80">Welcome back, {profile?.full_name || user?.email}</p>
+            <p className="text-white/90 font-medium">Welcome back, {profile?.full_name || user?.email}</p>
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-4">
+            <div className="hidden md:flex items-center space-x-3 bg-white/10 px-4 py-2 rounded-lg backdrop-blur-sm border border-white/20">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span className="text-white/90 text-sm font-medium">System Active</span>
+            </div>
             <button 
               onClick={signOut}
-              className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition-colors"
+              className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 text-white px-5 py-2.5 rounded-lg transition-all duration-300 backdrop-blur-sm border border-white/20 font-medium"
             >
               <LogOut className="w-4 h-4" />
-              <span>Logout</span>
+              <span>Secure Logout</span>
             </button>
           </div>
         </div>
@@ -53,47 +64,71 @@ export default function GovernmentDashboard() {
 
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* Stats Row */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-card rounded-lg p-6 shadow-sm border">
-            <div className="text-sm text-muted-foreground mb-2">Total Registered Shops</div>
-            <div className="flex items-center justify-between">
-              <div className="text-3xl font-bold text-foreground">{shops.length}</div>
-              <div className="text-sm px-2 py-1 rounded bg-green-100 text-green-600">
-                {approvedShops.length} approved
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-slide-up">
+          <div className="stat-card bg-white border border-gray-200/60 rounded-xl p-6 gov-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-gov-primary/10 rounded-xl flex items-center justify-center">
+                <div className="w-6 h-6 bg-gov-primary rounded text-white text-xs font-bold flex items-center justify-center">
+                  {shops.length}
+                </div>
+              </div>
+              <div className="text-xs px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold border border-emerald-200">
+                {approvedShops.length} APPROVED
               </div>
             </div>
+            <div className="text-sm text-gray-600 mb-1 font-semibold uppercase tracking-wide">Total Registered</div>
+            <div className="text-3xl font-bold text-gov-primary">{shops.length}</div>
+            <div className="text-xs text-gray-500 mt-1">Spaza Shops</div>
           </div>
 
-          <div className="bg-card rounded-lg p-6 shadow-sm border">
-            <div className="text-sm text-muted-foreground mb-2">Pending Approvals</div>
-            <div className="flex items-center justify-between">
-              <div className="text-3xl font-bold text-foreground">{pendingShops.length}</div>
-              <div className="text-sm px-2 py-1 rounded bg-yellow-100 text-yellow-600">
-                Action needed
+          <div className="stat-card bg-white border border-gray-200/60 rounded-xl p-6 gov-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
+                <div className="w-6 h-6 bg-amber-500 rounded text-white text-xs font-bold flex items-center justify-center">
+                  !
+                </div>
+              </div>
+              <div className="text-xs px-3 py-1.5 rounded-full bg-amber-100 text-amber-700 font-semibold border border-amber-200">
+                ACTION REQUIRED
               </div>
             </div>
+            <div className="text-sm text-gray-600 mb-1 font-semibold uppercase tracking-wide">Pending Approvals</div>
+            <div className="text-3xl font-bold text-amber-600">{pendingShops.length}</div>
+            <div className="text-xs text-gray-500 mt-1">Awaiting Review</div>
           </div>
 
-          <div className="bg-card rounded-lg p-6 shadow-sm border">
-            <div className="text-sm text-muted-foreground mb-2">Scheduled Inspections</div>
-            <div className="flex items-center justify-between">
-              <div className="text-3xl font-bold text-foreground">{upcomingInspections.length}</div>
-              <div className="text-sm px-2 py-1 rounded bg-blue-100 text-blue-600">
-                This week
+          <div className="stat-card bg-white border border-gray-200/60 rounded-xl p-6 gov-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                <div className="w-6 h-6 bg-blue-500 rounded text-white text-xs font-bold flex items-center justify-center">
+                  📅
+                </div>
+              </div>
+              <div className="text-xs px-3 py-1.5 rounded-full bg-blue-100 text-blue-700 font-semibold border border-blue-200">
+                THIS WEEK
               </div>
             </div>
+            <div className="text-sm text-gray-600 mb-1 font-semibold uppercase tracking-wide">Scheduled Inspections</div>
+            <div className="text-3xl font-bold text-blue-600">{upcomingInspections.length}</div>
+            <div className="text-xs text-gray-500 mt-1">Upcoming</div>
           </div>
 
-          <div className="bg-card rounded-lg p-6 shadow-sm border">
-            <div className="text-sm text-muted-foreground mb-2">Compliance Rate</div>
-            <div className="flex items-center justify-between">
-              <div className="text-3xl font-bold text-foreground">
-                {shops.length > 0 ? Math.round(((shops.length - nonCompliantShops.length) / shops.length) * 100) : 0}%
+          <div className="stat-card bg-white border border-gray-200/60 rounded-xl p-6 gov-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                <div className="w-6 h-6 bg-emerald-500 rounded text-white text-xs font-bold flex items-center justify-center">
+                  ✓
+                </div>
               </div>
-              <div className="text-sm px-2 py-1 rounded bg-green-100 text-green-600">
-                +2%
+              <div className="text-xs px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold border border-emerald-200">
+                +2% IMPROVED
               </div>
             </div>
+            <div className="text-sm text-gray-600 mb-1 font-semibold uppercase tracking-wide">Compliance Rate</div>
+            <div className="text-3xl font-bold text-emerald-600">
+              {shops.length > 0 ? Math.round(((shops.length - nonCompliantShops.length) / shops.length) * 100) : 0}%
+            </div>
+            <div className="text-xs text-gray-500 mt-1">System-wide</div>
           </div>
         </div>
 

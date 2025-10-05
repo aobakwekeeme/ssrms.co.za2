@@ -11,6 +11,11 @@ export interface Shop {
   phone?: string | null;
   email?: string | null;
   business_registration_number?: string | null;
+  business_type?: string | null;
+  vat_number?: string | null;
+  trading_license_number?: string | null;
+  tax_clearance_certificate?: string | null;
+  zoning_certificate?: string | null;
   trading_hours?: any;
   categories?: string[] | null;
   logo_url?: string | null;
