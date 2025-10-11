@@ -1,58 +1,103 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { LogOut, FileText, Calendar, Bell, TrendingUp, CheckCircle, Plus } from 'lucide-react';
+import { LogOut, FileText, Calendar, Bell, TrendingUp, CheckCircle, Plus, Home, Store, ClipboardCheck, Activity, HelpCircle, Settings, Menu, X } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useUserShop } from '../hooks/useShops';
 import { useShopInspections } from '../hooks/useInspections';
 import { useShopDocuments } from '../hooks/useDocuments';
 import { useActivities } from '../hooks/useActivities';
+import { supabase } from '../integrations/supabase/client';
+import { toast } from 'sonner';
 
 const ShopOwnerDashboard: React.FC = () => {
-  const { user, profile, signOut } = useAuth();
+  const { user, profile } = useAuth();
   const { shop, loading: shopLoading } = useUserShop();
   const { inspections } = useShopInspections(shop?.id || '');
   const { documents } = useShopDocuments(shop?.id || '');
   const { activities } = useActivities(5);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+    } catch {
+      toast.error('Failed to sign out');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="shop-gradient text-white px-6 py-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent"></div>
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-400 to-teal-400"></div>
-        <div className="relative max-w-7xl mx-auto flex items-center justify-between">
-          <div className="animate-fade-in">
-            <Link to="/" className="flex items-center space-x-3 mb-3 hover:opacity-90 transition-all duration-300">
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm border border-white/30">
-                <img src="/logo.png" alt="SSRMS Logo" className="w-8 h-8 rounded-lg" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-white tracking-tight">Shop Owner Portal</h1>
-                <p className="text-xs text-white/80 font-medium">Business Management Hub</p>
-              </div>
+      {/* Header with Navigation */}
+      <header className="shop-gradient shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <Link to="/" className="flex items-center space-x-2">
+              <img src="/logo.png" alt="SSRMS Logo" className="w-8 h-8 rounded-lg" />
+              <h1 className="text-2xl font-bold text-white">Shop Owner Portal</h1>
             </Link>
-            <p className="text-white/90 font-medium">Welcome back, {profile?.full_name || user?.email}</p>
-          </div>
-          <div className="flex items-center space-x-4">
-            <div className="hidden md:flex items-center space-x-2 bg-white/10 px-4 py-2 rounded-lg backdrop-blur-sm border border-white/20">
-              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-              <span className="text-white/90 text-sm font-medium">Business Active</span>
+            <div className="flex items-center gap-4">
+              <p className="text-white hidden md:block">Welcome, {profile?.full_name || user?.email}</p>
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="text-white p-2 hover:bg-blue-700 rounded-lg transition-colors"
+              >
+                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
             </div>
-            <button 
-              onClick={signOut}
-              className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 text-white px-5 py-2.5 rounded-lg transition-all duration-300 backdrop-blur-sm border border-white/20 font-medium"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Logout</span>
-            </button>
           </div>
         </div>
+        
+        {/* Mobile/Toggle Menu */}
+        {isMenuOpen && (
+          <div className="bg-white border-t border-blue-500">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+              <nav className="flex flex-col space-y-2">
+                <Link to="/dashboard" className="flex items-center gap-2 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <Home className="w-5 h-5" />
+                  <span className="font-medium">Home</span>
+                </Link>
+                <Link to="/shop/manage" className="flex items-center gap-2 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <Store className="w-5 h-5" />
+                  <span className="font-medium">My Shop</span>
+                </Link>
+                <Link to="/documents" className="flex items-center gap-2 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <FileText className="w-5 h-5" />
+                  <span className="font-medium">Documents</span>
+                </Link>
+                <Link to="/inspections" className="flex items-center gap-2 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <ClipboardCheck className="w-5 h-5" />
+                  <span className="font-medium">Inspections</span>
+                </Link>
+                <Link to="/activities" className="flex items-center gap-2 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <Activity className="w-5 h-5" />
+                  <span className="font-medium">Activities</span>
+                </Link>
+                <Link to="/support" className="flex items-center gap-2 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <HelpCircle className="w-5 h-5" />
+                  <span className="font-medium">Support</span>
+                </Link>
+                <Link to="/profile" className="flex items-center gap-2 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <Settings className="w-5 h-5" />
+                  <span className="font-medium">Profile</span>
+                </Link>
+                <button
+                  onClick={handleSignOut}
+                  className="flex items-center gap-2 px-3 py-2 text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors font-medium"
+                >
+                  <LogOut className="w-5 h-5" />
+                  Sign Out
+                </button>
+              </nav>
+            </div>
+          </div>
+        )}
       </header>
 
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* Dashboard Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 animate-slide-up">
-          <div className="stat-card bg-gradient-to-br from-emerald-50 to-green-50 p-6 rounded-xl card-elevated border-0">
+          <Link to="/compliance" className="stat-card bg-gradient-to-br from-emerald-50 to-green-50 p-6 rounded-xl card-elevated border-0 hover:shadow-lg transition-all cursor-pointer">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-semibold text-emerald-600 uppercase tracking-wide">Compliance Score</p>
@@ -66,9 +111,9 @@ const ShopOwnerDashboard: React.FC = () => {
                 <CheckCircle className="w-7 h-7 text-white" />
               </div>
             </div>
-          </div>
+          </Link>
 
-          <div className="stat-card bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl card-elevated border-0">
+          <Link to="/documents" className="stat-card bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl card-elevated border-0 hover:shadow-lg transition-all cursor-pointer">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-semibold text-blue-600 uppercase tracking-wide">Documents</p>
@@ -82,9 +127,9 @@ const ShopOwnerDashboard: React.FC = () => {
                 <FileText className="w-7 h-7 text-white" />
               </div>
             </div>
-          </div>
+          </Link>
 
-          <div className="stat-card bg-gradient-to-br from-orange-50 to-red-50 p-6 rounded-xl card-elevated border-0">
+          <Link to="/inspections" className="stat-card bg-gradient-to-br from-orange-50 to-red-50 p-6 rounded-xl card-elevated border-0 hover:shadow-lg transition-all cursor-pointer">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-semibold text-orange-600 uppercase tracking-wide">Inspections</p>
@@ -98,9 +143,9 @@ const ShopOwnerDashboard: React.FC = () => {
                 <Calendar className="w-7 h-7 text-white" />
               </div>
             </div>
-          </div>
+          </Link>
 
-          <div className="stat-card bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl card-elevated border-0">
+          <Link to="/activities" className="stat-card bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl card-elevated border-0 hover:shadow-lg transition-all cursor-pointer">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-semibold text-purple-600 uppercase tracking-wide">Activities</p>
@@ -114,7 +159,7 @@ const ShopOwnerDashboard: React.FC = () => {
                 <Bell className="w-7 h-7 text-white" />
               </div>
             </div>
-          </div>
+          </Link>
         </div>
 
         {/* Main Content */}
@@ -147,24 +192,31 @@ const ShopOwnerDashboard: React.FC = () => {
                 </div>
                 
                 <div className="flex items-start space-x-4">
-                  <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                    {shop.logo_url ? (
+                  <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                    {shop?.logo_url ? (
                       <img src={shop.logo_url} alt={shop.name} className="w-full h-full object-cover rounded-lg" />
                     ) : (
-                      <span className="text-2xl font-bold text-gray-600">{shop.name.charAt(0)}</span>
+                      <span className="text-2xl font-bold text-gray-600">{shop?.name?.charAt(0) || 'S'}</span>
                     )}
                   </div>
                   <div className="flex-1">
-                    <h4 className="text-lg font-medium text-gray-900">{shop.name}</h4>
-                    <p className="text-gray-600">{shop.address}</p>
+                    <h4 className="text-lg font-medium text-gray-900">{shop?.name || 'N/A'}</h4>
+                    <p className="text-gray-600">{shop?.address || 'No address provided'}</p>
+                    {shop?.phone && <p className="text-gray-500 text-sm">Phone: {shop.phone}</p>}
+                    {shop?.email && <p className="text-gray-500 text-sm">Email: {shop.email}</p>}
                     <div className="flex items-center space-x-4 mt-2">
                       <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        shop.status === 'approved' ? 'bg-green-100 text-green-800' :
-                        shop.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                        shop?.status === 'approved' ? 'bg-green-100 text-green-800' :
+                        shop?.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                         'bg-red-100 text-red-800'
                       }`}>
-                        {shop.status.charAt(0).toUpperCase() + shop.status.slice(1)}
+                        {shop?.status ? shop.status.charAt(0).toUpperCase() + shop.status.slice(1) : 'Unknown'}
                       </span>
+                      {shop?.business_type && (
+                        <span className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+                          {shop.business_type}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>

@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { X, Eye, EyeOff, Mail, CheckCircle, AlertCircle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import PasswordStrengthIndicator from './PasswordStrengthIndicator';
+import ForgotPasswordModal from './ForgotPasswordModal';
+import { meetsMinimumRequirements } from '../utils/passwordValidation';
+import { validateEmail } from '../utils/inputValidation';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -25,10 +29,18 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [emailConfirmationSent, setEmailConfirmationSent] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // Validate email
+    const emailValidation = validateEmail(formData.email);
+    if (!emailValidation.isValid) {
+      setError(emailValidation.error || 'Invalid email');
+      return;
+    }
 
     try {
       if (mode === 'signin') {
@@ -39,8 +51,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
           onClose();
         }
       } else {
-        if (formData.password.length < 6) {
-          setError('Password must be at least 6 characters');
+        // Validate password strength for signup
+        if (!meetsMinimumRequirements(formData.password)) {
+          setError('Password must be at least 8 characters and include uppercase, lowercase, number, and special character');
           return;
         }
         
@@ -356,10 +369,28 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
+            
             {mode === 'signup' && (
-              <p className="text-xs text-gray-500 mt-1">Minimum 6 characters required</p>
+              <PasswordStrengthIndicator password={formData.password} show={true} />
+            )}
+            
+            {mode === 'signin' && (
+              <div className="text-right">
+                <button
+                  type="button"
+                  onClick={() => setShowForgotPassword(true)}
+                  className="text-sm text-teal-600 hover:text-teal-700 font-medium"
+                >
+                  Forgot password?
+                </button>
+              </div>
             )}
           </div>
+
+          <ForgotPasswordModal 
+            isOpen={showForgotPassword} 
+            onClose={() => setShowForgotPassword(false)} 
+          />
 
           <button
             type="submit"
@@ -419,6 +450,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
               <p className="text-sm text-blue-700">After registration, you'll receive a confirmation email. Click the link to activate your account and sign in automatically.</p>
             </div>
           )}
+          
         </form>
       </div>
     </div>

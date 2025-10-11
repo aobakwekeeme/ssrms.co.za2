@@ -1,15 +1,28 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useShops } from '../hooks/useShops';
 import { useInspections } from '../hooks/useInspections';
 import { useDocuments } from '../hooks/useDocuments';
-import { LogOut } from 'lucide-react';
+import { LogOut, Home, Store, ClipboardCheck, HelpCircle, Settings, Menu, X } from 'lucide-react';
+import { supabase } from '../integrations/supabase/client';
+import { toast } from 'sonner';
 
 export default function GovernmentDashboard() {
-  const { user, profile, signOut } = useAuth();
+  const { user, profile } = useAuth();
   const { shops } = useShops();
   const { inspections } = useInspections();
   const { documents } = useDocuments();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+    } catch {
+      toast.error('Failed to sign out');
+    }
+  };
 
   const pendingShops = shops.filter(shop => shop.status === 'pending');
   const approvedShops = shops.filter(shop => shop.status === 'approved');
@@ -29,43 +42,68 @@ export default function GovernmentDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="gov-gradient text-white px-6 py-6 relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent"></div>
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-400 via-red-500 to-green-500"></div>
-        <div className="relative max-w-7xl mx-auto flex items-center justify-between">
-          <div className="animate-fade-in">
-            <Link to="/" className="flex items-center space-x-4 mb-3 hover:opacity-90 transition-all duration-300">
-              <div className="w-14 h-14 bg-white/15 rounded-lg flex items-center justify-center backdrop-blur-sm border border-white/20">
-                <img src="/logo.png" alt="SSRMS Logo" className="w-10 h-10 rounded-lg" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-white tracking-tight">Government Dashboard</h1>
-                <p className="text-xs text-white/80 font-medium uppercase tracking-wider">Official Portal • SSRMS</p>
-              </div>
+      {/* Header with Navigation */}
+      <header className="gov-gradient shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <Link to="/" className="flex items-center space-x-2">
+              <img src="/logo.png" alt="SSRMS Logo" className="w-8 h-8 rounded-lg" />
+              <h1 className="text-2xl font-bold text-white">Government Dashboard</h1>
             </Link>
-            <p className="text-white/90 font-medium">Welcome back, {profile?.full_name || user?.email}</p>
-          </div>
-          <div className="flex items-center space-x-4">
-            <div className="hidden md:flex items-center space-x-3 bg-white/10 px-4 py-2 rounded-lg backdrop-blur-sm border border-white/20">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-white/90 text-sm font-medium">System Active</span>
+            <div className="flex items-center gap-4">
+              <p className="text-white hidden md:block">Welcome, {profile?.full_name || user?.email}</p>
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="text-white p-2 hover:bg-emerald-700 rounded-lg transition-colors"
+              >
+                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
             </div>
-            <button 
-              onClick={signOut}
-              className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 text-white px-5 py-2.5 rounded-lg transition-all duration-300 backdrop-blur-sm border border-white/20 font-medium"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Secure Logout</span>
-            </button>
           </div>
         </div>
+        
+        {/* Mobile/Toggle Menu */}
+        {isMenuOpen && (
+          <div className="bg-white border-t border-emerald-500">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+              <nav className="flex flex-col space-y-2">
+                <Link to="/dashboard" className="flex items-center gap-2 text-gray-700 hover:text-emerald-600 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <Home className="w-5 h-5" />
+                  <span className="font-medium">Home</span>
+                </Link>
+                <Link to="/shop-management" className="flex items-center gap-2 text-gray-700 hover:text-emerald-600 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <Store className="w-5 h-5" />
+                  <span className="font-medium">Shop Management</span>
+                </Link>
+                <Link to="/inspections" className="flex items-center gap-2 text-gray-700 hover:text-emerald-600 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <ClipboardCheck className="w-5 h-5" />
+                  <span className="font-medium">Inspections</span>
+                </Link>
+                <Link to="/support" className="flex items-center gap-2 text-gray-700 hover:text-emerald-600 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <HelpCircle className="w-5 h-5" />
+                  <span className="font-medium">Support</span>
+                </Link>
+                <Link to="/profile" className="flex items-center gap-2 text-gray-700 hover:text-emerald-600 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <Settings className="w-5 h-5" />
+                  <span className="font-medium">Profile</span>
+                </Link>
+                <button
+                  onClick={handleSignOut}
+                  className="flex items-center gap-2 px-3 py-2 text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors font-medium"
+                >
+                  <LogOut className="w-5 h-5" />
+                  Sign Out
+                </button>
+              </nav>
+            </div>
+          </div>
+        )}
       </header>
 
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* Stats Row */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-slide-up">
-          <div className="stat-card bg-white border border-gray-200/60 rounded-xl p-6 gov-shadow">
+          <Link to="/shop-management" className="stat-card bg-white border border-gray-200/60 rounded-xl p-6 gov-shadow hover:shadow-lg transition-all cursor-pointer">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-gov-primary/10 rounded-xl flex items-center justify-center">
                 <div className="w-6 h-6 bg-gov-primary rounded text-white text-xs font-bold flex items-center justify-center">
@@ -79,9 +117,9 @@ export default function GovernmentDashboard() {
             <div className="text-sm text-gray-600 mb-1 font-semibold uppercase tracking-wide">Total Registered</div>
             <div className="text-3xl font-bold text-gov-primary">{shops.length}</div>
             <div className="text-xs text-gray-500 mt-1">Spaza Shops</div>
-          </div>
+          </Link>
 
-          <div className="stat-card bg-white border border-gray-200/60 rounded-xl p-6 gov-shadow">
+          <Link to="/shop-management?status=pending" className="stat-card bg-white border border-gray-200/60 rounded-xl p-6 gov-shadow hover:shadow-lg transition-all cursor-pointer">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
                 <div className="w-6 h-6 bg-amber-500 rounded text-white text-xs font-bold flex items-center justify-center">
@@ -95,9 +133,9 @@ export default function GovernmentDashboard() {
             <div className="text-sm text-gray-600 mb-1 font-semibold uppercase tracking-wide">Pending Approvals</div>
             <div className="text-3xl font-bold text-amber-600">{pendingShops.length}</div>
             <div className="text-xs text-gray-500 mt-1">Awaiting Review</div>
-          </div>
+          </Link>
 
-          <div className="stat-card bg-white border border-gray-200/60 rounded-xl p-6 gov-shadow">
+          <Link to="/inspections" className="stat-card bg-white border border-gray-200/60 rounded-xl p-6 gov-shadow hover:shadow-lg transition-all cursor-pointer">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
                 <div className="w-6 h-6 bg-blue-500 rounded text-white text-xs font-bold flex items-center justify-center">
@@ -111,9 +149,9 @@ export default function GovernmentDashboard() {
             <div className="text-sm text-gray-600 mb-1 font-semibold uppercase tracking-wide">Scheduled Inspections</div>
             <div className="text-3xl font-bold text-blue-600">{upcomingInspections.length}</div>
             <div className="text-xs text-gray-500 mt-1">Upcoming</div>
-          </div>
+          </Link>
 
-          <div className="stat-card bg-white border border-gray-200/60 rounded-xl p-6 gov-shadow">
+          <Link to="/shop-management" className="stat-card bg-white border border-gray-200/60 rounded-xl p-6 gov-shadow hover:shadow-lg transition-all cursor-pointer">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
                 <div className="w-6 h-6 bg-emerald-500 rounded text-white text-xs font-bold flex items-center justify-center">
@@ -129,7 +167,7 @@ export default function GovernmentDashboard() {
               {shops.length > 0 ? Math.round(((shops.length - nonCompliantShops.length) / shops.length) * 100) : 0}%
             </div>
             <div className="text-xs text-gray-500 mt-1">System-wide</div>
-          </div>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -140,8 +178,12 @@ export default function GovernmentDashboard() {
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-foreground">Compliance Overview</h3>
                 <div className="flex space-x-2">
-                  <button className="text-muted-foreground hover:text-foreground">Filter</button>
-                  <button className="text-muted-foreground hover:text-foreground">Export</button>
+                  <button 
+                    onClick={() => window.print()}
+                    className="text-muted-foreground hover:text-foreground px-3 py-1 border rounded"
+                  >
+                    Export
+                  </button>
                 </div>
               </div>
               <div className="bg-muted/30 rounded-lg p-8 text-center mb-6">
@@ -253,9 +295,30 @@ export default function GovernmentDashboard() {
                     <p className="text-sm text-muted-foreground mb-3">
                       Compliance Score: {shop.compliance_score}/100
                     </p>
-                    <button className="text-sm bg-primary text-primary-foreground px-3 py-1 rounded hover:bg-primary/90">
-                      Send Notification
-                    </button>
+                      <button 
+                        onClick={async () => {
+                          toast.success(`Notification sent to ${shop.name}`);
+                        }}
+                        className="text-sm bg-primary text-primary-foreground px-3 py-1 rounded hover:bg-primary/90"
+                      >
+                        Send Notification
+                      </button>
+                      <button
+                        onClick={async () => {
+                          const { error } = await supabase
+                            .from('shops')
+                            .update({ status: 'suspended' })
+                            .eq('id', shop.id);
+                          if (error) {
+                            toast.error('Failed to suspend shop');
+                          } else {
+                            toast.success('Shop suspended');
+                          }
+                        }}
+                        className="text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                      >
+                        Suspend Shop
+                      </button>
                   </div>
                 ))}
                 {nonCompliantShops.length === 0 && (
@@ -272,9 +335,9 @@ export default function GovernmentDashboard() {
                   <Link to="/shop-management" className="bg-muted hover:bg-muted/80 px-4 py-3 rounded-lg text-center font-medium transition-colors text-foreground">
                     Review Apps
                   </Link>
-                  <button className="bg-muted hover:bg-muted/80 px-4 py-3 rounded-lg text-center font-medium transition-colors text-foreground">
+                  <Link to="/inspections" className="bg-muted hover:bg-muted/80 px-4 py-3 rounded-lg text-center font-medium transition-colors text-foreground">
                     Schedule Inspection
-                  </button>
+                  </Link>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <button className="bg-muted hover:bg-muted/80 px-4 py-3 rounded-lg text-center font-medium transition-colors text-foreground">

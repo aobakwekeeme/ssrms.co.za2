@@ -1,8 +1,49 @@
 import React, { useState } from 'react';
+import { useUserShop } from '../hooks/useShops';
+import { useShopDocuments } from '../hooks/useDocuments';
+import { useShopInspections } from '../hooks/useInspections';
+import { supabase } from '../integrations/supabase/client';
+import { toast } from 'sonner';
 import { ArrowLeft, Shield, CheckCircle, FileText, Building, Phone, Mail } from 'lucide-react';
+import ComplianceQuestionnaire from '../components/ComplianceQuestionnaire';
 
 const CompliancePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  const [showQuestionnaire, setShowQuestionnaire] = useState(false);
+  const { shop } = useUserShop();
+  const { documents } = useShopDocuments(shop?.id || '');
+  const { inspections } = useShopInspections(shop?.id || '');
+
+  const recalcCompliance = async () => {
+    try {
+      if (!shop) return toast.error('No shop found for your account');
+      const approvedTypes = new Set(documents.filter((d: any) => d.status === 'approved').map((d: any) => d.type));
+      let docPoints = 0;
+      if (approvedTypes.has('business_registration')) docPoints += 10;
+      if (approvedTypes.has('tax_clearance')) docPoints += 10;
+      if (approvedTypes.has('trading_license')) docPoints += 10;
+      if (approvedTypes.has('health_certificate')) docPoints += 20;
+      if (approvedTypes.has('fire_safety')) docPoints += 20;
+      if (approvedTypes.has('zoning_certificate')) docPoints += 10;
+      if (approvedTypes.has('insurance')) docPoints += 20;
+      docPoints = Math.min(100, docPoints);
+
+      const latestCompleted = inspections.find((i: any) => i.status === 'completed' && i.score != null);
+      let score = docPoints;
+      if (latestCompleted?.score != null) {
+        score = Math.round((docPoints + Math.min(100, latestCompleted.score)) / 2);
+      }
+
+      const { error } = await supabase
+        .from('shops')
+        .update({ compliance_score: score })
+        .eq('id', shop.id);
+      if (error) throw error;
+      toast.success(`Compliance score updated to ${score}%`);
+    } catch (e) {
+      toast.error('Failed to update compliance score');
+    }
+  };
 
   const complianceAreas = [
     {
@@ -386,11 +427,28 @@ const CompliancePage: React.FC = () => {
           <p className="text-teal-100 mb-6 max-w-2xl mx-auto">
             Start your compliance journey today and join thousands of verified spaza shops across South Africa.
           </p>
-          <button className="bg-white text-teal-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
-            Start Compliance Assessment
-          </button>
+          <div className="flex items-center justify-center space-x-4">
+            <button 
+              onClick={() => setShowQuestionnaire(true)} 
+              className="bg-white text-teal-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+            >
+              Start Compliance Questionnaire
+            </button>
+            <button 
+              onClick={recalcCompliance} 
+              className="bg-teal-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-teal-800 transition-colors border border-white/20"
+            >
+              Recalculate Score
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Questionnaire Modal */}
+      <ComplianceQuestionnaire 
+        isOpen={showQuestionnaire} 
+        onClose={() => setShowQuestionnaire(false)} 
+      />
     </div>
   );
 };

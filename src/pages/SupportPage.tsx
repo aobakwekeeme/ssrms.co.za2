@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { Search, MessageCircle, Phone, Mail, Clock, CheckCircle, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
+import LiveChatModal from '../components/LiveChatModal';
 
 const SupportPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+  const [showLiveChat, setShowLiveChat] = useState(false);
+  const [expandedCategory, setExpandedCategory] = useState<number | null>(null);
 
   const supportCategories = [
     {
@@ -96,17 +99,39 @@ const SupportPage: React.FC = () => {
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Browse by Category</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {supportCategories.map((category, index) => (
-                  <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer">
-                    <div className="flex items-start space-x-4">
-                      <div className="text-blue-600">
-                        {category.icon}
+                  <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <button
+                      onClick={() => setExpandedCategory(expandedCategory === index ? null : index)}
+                      className="w-full p-6 text-left hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start space-x-4 flex-1">
+                          <div className="text-blue-600">
+                            {category.icon}
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2">{category.title}</h3>
+                            <p className="text-gray-600 text-sm mb-3">{category.description}</p>
+                            <span className="text-blue-600 text-sm font-medium">{category.articles} articles</span>
+                          </div>
+                        </div>
+                        {expandedCategory === index ? (
+                          <ChevronUp className="w-5 h-5 text-gray-500" />
+                        ) : (
+                          <ChevronDown className="w-5 h-5 text-gray-500" />
+                        )}
                       </div>
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">{category.title}</h3>
-                        <p className="text-gray-600 text-sm mb-3">{category.description}</p>
-                        <span className="text-blue-600 text-sm font-medium">{category.articles} articles</span>
+                    </button>
+                    {expandedCategory === index && (
+                      <div className="px-6 pb-6 border-t border-gray-200 pt-4">
+                        <ul className="space-y-2">
+                          <li className="text-sm text-gray-700 hover:text-blue-600 cursor-pointer">• How to get started with SSRMS</li>
+                          <li className="text-sm text-gray-700 hover:text-blue-600 cursor-pointer">• Creating your first shop profile</li>
+                          <li className="text-sm text-gray-700 hover:text-blue-600 cursor-pointer">• Understanding the dashboard</li>
+                          <li className="text-sm text-gray-700 hover:text-blue-600 cursor-pointer">• Uploading required documents</li>
+                        </ul>
                       </div>
-                    </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -146,13 +171,16 @@ const SupportPage: React.FC = () => {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Support</h3>
               <div className="space-y-4">
-                <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors cursor-pointer">
+                <button
+                  onClick={() => setShowLiveChat(true)}
+                  className="w-full flex items-center space-x-3 p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors cursor-pointer"
+                >
                   <MessageCircle className="w-5 h-5 text-blue-600" />
-                  <div>
+                  <div className="text-left">
                     <div className="font-medium text-gray-900">Live Chat</div>
                     <div className="text-sm text-gray-600">Available 24/7</div>
                   </div>
-                </div>
+                </button>
                 
                 <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors cursor-pointer">
                   <Phone className="w-5 h-5 text-green-600" />
@@ -211,6 +239,9 @@ const SupportPage: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* Live Chat Modal */}
+      <LiveChatModal isOpen={showLiveChat} onClose={() => setShowLiveChat(false)} />
     </div>
   );
 };

@@ -55,13 +55,20 @@ const ProfileManagement: React.FC = () => {
     const file = event.target.files?.[0];
     if (!file || !user) return;
 
+    // Check file size (max 1MB)
+    const maxSize = 1024 * 1024; // 1MB in bytes
+    if (file.size > maxSize) {
+      toast.error('File size must be less than 1MB');
+      return;
+    }
+
     try {
       setLoading(true);
 
       // Upload file to Supabase storage
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      const filePath = `${user.id}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
@@ -73,6 +80,14 @@ const ProfileManagement: React.FC = () => {
       const { data } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
+
+      // Update profile with new avatar URL
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: data.publicUrl })
+        .eq('user_id', user.id);
+
+      if (updateError) throw updateError;
 
       setProfileData({ ...profileData, avatar_url: data.publicUrl });
       toast.success('Avatar uploaded successfully!');
@@ -128,7 +143,7 @@ const ProfileManagement: React.FC = () => {
                   />
                 </label>
               </div>
-              <p className="text-sm text-gray-500 mt-2">Click the upload icon to change your profile picture</p>
+              <p className="text-sm text-gray-500 mt-2">Click the upload icon to change your profile picture (max 1MB)</p>
             </div>
 
             {/* Account Information */}

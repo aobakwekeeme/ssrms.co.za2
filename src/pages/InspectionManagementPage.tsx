@@ -18,25 +18,56 @@ export default function InspectionManagementPage() {
     scheduled_date: '',
     notes: ''
   });
+  const [shopSearch, setShopSearch] = useState('');
+  const [provinceFilter, setProvinceFilter] = useState('');
+  const [districtFilter, setDistrictFilter] = useState('');
+
+  const provinces = Array.from(new Set(shops.map((s: any) => s.province).filter(Boolean)));
+  const districts = Array.from(new Set(shops.map((s: any) => s.district_municipality).filter(Boolean)));
+
+  const filteredShops = shops.filter((s) => {
+    const matchesSearch = s.name.toLowerCase().includes(shopSearch.toLowerCase()) || s.address.toLowerCase().includes(shopSearch.toLowerCase());
+    const matchesProvince = !provinceFilter || (s as any).province === provinceFilter;
+    const matchesDistrict = !districtFilter || (s as any).district_municipality === districtFilter;
+    return matchesSearch && matchesProvince && matchesDistrict;
+  });
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      if (!formData.shop_id) {
+        toast.error('Please select a shop');
+        return;
+      }
+      
+      if (!formData.scheduled_date) {
+        toast.error('Please select a date and time');
+        return;
+      }
+
       const { error } = await supabase
         .from('inspections')
         .insert({
-          ...formData,
+          shop_id: formData.shop_id,
+          type: formData.type,
+          scheduled_date: new Date(formData.scheduled_date).toISOString(),
+          notes: formData.notes,
           inspector_id: user?.id,
           status: 'scheduled'
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Inspection creation error:', error);
+        throw error;
+      }
+      
       toast.success('Inspection scheduled successfully');
       setShowCreateModal(false);
       setFormData({ shop_id: '', type: 'routine', scheduled_date: '', notes: '' });
       refetch();
-    } catch (error) {
-      toast.error('Failed to schedule inspection');
+    } catch (error: any) {
+      console.error('Failed to schedule inspection:', error);
+      toast.error(error?.message || 'Failed to schedule inspection');
     }
   };
 
@@ -144,14 +175,43 @@ export default function InspectionManagementPage() {
               <form onSubmit={handleCreate} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">Shop</label>
+                  <input
+                    type="text"
+                    placeholder="Search by name or address..."
+                    value={shopSearch}
+                    onChange={(e) => setShopSearch(e.target.value)}
+                    className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
+                  />
+                  <div className="grid grid-cols-2 gap-3 mt-2">
+                    <select
+                      value={provinceFilter}
+                      onChange={(e) => setProvinceFilter(e.target.value)}
+                      className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
+                    >
+                      <option value="">All Provinces</option>
+                      {provinces.map((p) => (
+                        <option key={p} value={p}>{p}</option>
+                      ))}
+                    </select>
+                    <select
+                      value={districtFilter}
+                      onChange={(e) => setDistrictFilter(e.target.value)}
+                      className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
+                    >
+                      <option value="">All Districts</option>
+                      {districts.map((d) => (
+                        <option key={d} value={d}>{d}</option>
+                      ))}
+                    </select>
+                  </div>
                   <select
                     value={formData.shop_id}
                     onChange={(e) => setFormData({ ...formData, shop_id: e.target.value })}
-                    className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground"
+                    className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground mt-2"
                     required
                   >
                     <option value="">Select a shop</option>
-                    {shops.map(shop => (
+                    {filteredShops.map(shop => (
                       <option key={shop.id} value={shop.id}>{shop.name}</option>
                     ))}
                   </select>
@@ -167,7 +227,8 @@ export default function InspectionManagementPage() {
                   >
                     <option value="routine">Routine</option>
                     <option value="follow-up">Follow-up</option>
-                    <option value="complaint">Complaint Investigation</option>
+                    <option value="complaint">Complaint</option>
+                    <option value="initial">Initial</option>
                   </select>
                 </div>
 

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Phone, Mail, MapPin, Clock, Send, MessageSquare } from 'lucide-react';
+import { validateEmail, validateText } from '../utils/inputValidation';
+import { toast } from 'sonner';
 
 const ContactPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -19,9 +21,34 @@ const ContactPage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate inputs
+    const nameValidation = validateText(formData.name, 'Name', 2, 100);
+    if (!nameValidation.isValid) {
+      toast.error(nameValidation.error);
+      return;
+    }
+
+    const emailValidation = validateEmail(formData.email);
+    if (!emailValidation.isValid) {
+      toast.error(emailValidation.error);
+      return;
+    }
+
+    const subjectValidation = validateText(formData.subject, 'Subject', 5, 200);
+    if (!subjectValidation.isValid) {
+      toast.error(subjectValidation.error);
+      return;
+    }
+
+    const messageValidation = validateText(formData.message, 'Message', 10, 2000);
+    if (!messageValidation.isValid) {
+      toast.error(messageValidation.error);
+      return;
+    }
+
     // Handle form submission
-    console.log('Form submitted:', formData);
-    alert('Thank you for your message! We will get back to you within 24 hours.');
+    toast.success('Thank you for your message! We will get back to you within 24 hours.');
     setFormData({
       name: '',
       email: '',

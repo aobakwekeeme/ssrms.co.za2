@@ -24,6 +24,9 @@ import ShopDetailPage from './pages/ShopDetailPage';
 import MyReviewsPage from './pages/MyReviewsPage';
 import ShopRegistrationForm from './components/ShopRegistrationForm';
 import ProfileManagement from './components/ProfileManagement';
+import DocumentsPage from './pages/DocumentsPage';
+import InspectionsPage from './pages/InspectionsPage';
+import ActivitiesPage from './pages/ActivitiesPage';
 
 function AppRoutes() {
   const { user, profile, loading } = useAuth();
@@ -63,8 +66,11 @@ function AppRoutes() {
         <>
           <Route path="/dashboard" element={<ShopOwnerDashboard />} />
           <Route path="/shop-profile" element={<ShopProfile />} />
-          <Route path="/shop/manage" element={<ShopManagementPage />} />
+          <Route path="/shop/manage" element={<ShopProfile />} />
           <Route path="/shop/register" element={<ShopRegistrationForm />} />
+          <Route path="/documents" element={<DocumentsPage />} />
+          <Route path="/inspections" element={<InspectionsPage />} />
+          <Route path="/activities" element={<ActivitiesPage />} />
         </>
       )}
       {profile?.role === 'government_official' && (
@@ -82,6 +88,7 @@ function AppRoutes() {
           <Route path="/shop/:shopId" element={<ShopDetailPage />} />
           <Route path="/shop/:shopId/reviews" element={<ReviewsPage />} />
           <Route path="/my-reviews" element={<MyReviewsPage />} />
+          <Route path="/activities" element={<ActivitiesPage />} />
         </>
       )}
       <Route path="/profile" element={<ProfileManagement />} />
@@ -93,6 +100,7 @@ function AppRoutes() {
       <Route path="/terms-of-service" element={<TermsOfServicePage />} />
       <Route path="/feedback" element={<FeedbackPage />} />
       <Route path="/contact" element={<ContactPage />} />
+      <Route path="/shops" element={<ShopBrowsePage />} />
       <Route path="*" element={<Navigate to="/dashboard" />} />
     </Routes>
   );

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Star } from 'lucide-react';
 import { supabase } from '../integrations/supabase/client';
@@ -20,13 +20,12 @@ export default function ReviewsPage() {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
 
-  useState(() => {
+  useEffect(() => {
     fetchReviews();
-  });
+  }, [shopId]);
 
-  const fetchReviews = async () => {
+  async function fetchReviews() {
     if (!shopId) return;
-    
     try {
       const { data, error } = await supabase
         .from('reviews')
@@ -39,7 +38,7 @@ export default function ReviewsPage() {
     } catch {
       toast.error('Failed to load reviews');
     }
-  };
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
