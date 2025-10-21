@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { LogOut, FileText, Calendar, Bell, TrendingUp, CheckCircle, Plus, Home, Store, ClipboardCheck, Activity, HelpCircle, Settings, Menu, X } from 'lucide-react';
+import { FileText, Calendar, Bell, TrendingUp, CheckCircle, Plus, Home, Store, ClipboardCheck, Activity, HelpCircle, Menu, X } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useUserShop } from '../hooks/useShops';
 import { useShopInspections } from '../hooks/useInspections';
 import { useShopDocuments } from '../hooks/useDocuments';
 import { useActivities } from '../hooks/useActivities';
-import { supabase } from '../integrations/supabase/client';
-import { toast } from 'sonner';
+import NotificationDropdown from './NotificationDropdown';
+import ProfileDropdown from './ProfileDropdown';
 
 const ShopOwnerDashboard: React.FC = () => {
   const { user, profile } = useAuth();
@@ -16,15 +16,6 @@ const ShopOwnerDashboard: React.FC = () => {
   const { documents } = useShopDocuments(shop?.id || '');
   const { activities } = useActivities(5);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const handleSignOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-    } catch {
-      toast.error('Failed to sign out');
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -36,11 +27,13 @@ const ShopOwnerDashboard: React.FC = () => {
               <img src="/logo.png" alt="SSRMS Logo" className="w-8 h-8 rounded-lg" />
               <h1 className="text-2xl font-bold text-white">Shop Owner Portal</h1>
             </Link>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <p className="text-white hidden md:block">Welcome, {profile?.full_name || user?.email}</p>
+              <NotificationDropdown />
+              <ProfileDropdown />
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-white p-2 hover:bg-blue-700 rounded-lg transition-colors"
+                className="text-white p-2 hover:bg-blue-700 rounded-lg transition-colors md:hidden"
               >
                 {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
@@ -48,10 +41,10 @@ const ShopOwnerDashboard: React.FC = () => {
           </div>
         </div>
         
-        {/* Mobile/Toggle Menu */}
+        {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="bg-white border-t border-blue-500">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="absolute right-4 top-16 z-50 w-64 bg-white border border-border rounded-lg shadow-lg">
+            <div className="p-4">
               <nav className="flex flex-col space-y-2">
                 <Link to="/dashboard" className="flex items-center gap-2 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
                   <Home className="w-5 h-5" />
@@ -77,17 +70,6 @@ const ShopOwnerDashboard: React.FC = () => {
                   <HelpCircle className="w-5 h-5" />
                   <span className="font-medium">Support</span>
                 </Link>
-                <Link to="/profile" className="flex items-center gap-2 text-gray-700 hover:text-blue-600 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                  <Settings className="w-5 h-5" />
-                  <span className="font-medium">Profile</span>
-                </Link>
-                <button
-                  onClick={handleSignOut}
-                  className="flex items-center gap-2 px-3 py-2 text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors font-medium"
-                >
-                  <LogOut className="w-5 h-5" />
-                  Sign Out
-                </button>
               </nav>
             </div>
           </div>

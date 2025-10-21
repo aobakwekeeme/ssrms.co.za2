@@ -15,6 +15,7 @@ export interface Activity {
   } | null;
 }
 
+
 export const useActivities = (limit = 10) => {
   const { user } = useAuth();
   const [activities, setActivities] = useState<Activity[]>([]);

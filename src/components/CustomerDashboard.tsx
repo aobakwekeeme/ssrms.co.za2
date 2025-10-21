@@ -4,9 +4,9 @@ import { useAuth } from '../hooks/useAuth';
 import { useShops, useNearbyShops } from '../hooks/useShops';
 import { useFavorites } from '../hooks/useFavorites';
 import { useActivities } from '../hooks/useActivities';
-import { LogOut, Heart, MapPin, Clock, ShoppingBag, Home, Store, Star, Activity, HelpCircle, Settings, Menu, X } from 'lucide-react';
-import { supabase } from '../integrations/supabase/client';
-import { toast } from 'sonner';
+import { Heart, MapPin, Clock, ShoppingBag, Home, Store, Star, Activity, HelpCircle, Menu, X } from 'lucide-react';
+import NotificationDropdown from './NotificationDropdown';
+import ProfileDropdown from './ProfileDropdown';
 
 export default function CustomerDashboard() {
   const { user, profile } = useAuth();
@@ -16,15 +16,6 @@ export default function CustomerDashboard() {
   const favoriteShops = favorites.map(fav => fav.shops).filter(Boolean);
   const { activities } = useActivities(5);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const handleSignOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-    } catch {
-      toast.error('Failed to sign out');
-    }
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -36,11 +27,13 @@ export default function CustomerDashboard() {
               <img src="/logo.png" alt="SSRMS Logo" className="w-8 h-8 rounded-lg" />
               <h1 className="text-2xl font-bold text-white">Customer Portal</h1>
             </Link>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <p className="text-white hidden md:block">Welcome, {profile?.full_name || user?.email}</p>
+              <NotificationDropdown />
+              <ProfileDropdown />
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-white p-2 hover:bg-pink-700 rounded-lg transition-colors"
+                className="text-white p-2 hover:bg-pink-700 rounded-lg transition-colors md:hidden"
               >
                 {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
@@ -48,10 +41,10 @@ export default function CustomerDashboard() {
           </div>
         </div>
         
-        {/* Mobile/Toggle Menu */}
+        {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="bg-white border-t border-pink-500">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="absolute right-4 top-16 z-50 w-64 bg-white border border-border rounded-lg shadow-lg">
+            <div className="p-4">
               <nav className="flex flex-col space-y-2">
                 <Link to="/dashboard" className="flex items-center gap-2 text-gray-700 hover:text-pink-600 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
                   <Home className="w-5 h-5" />
@@ -73,17 +66,6 @@ export default function CustomerDashboard() {
                   <HelpCircle className="w-5 h-5" />
                   <span className="font-medium">Support</span>
                 </Link>
-                <Link to="/profile" className="flex items-center gap-2 text-gray-700 hover:text-pink-600 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                  <Settings className="w-5 h-5" />
-                  <span className="font-medium">Profile</span>
-                </Link>
-                <button
-                  onClick={handleSignOut}
-                  className="flex items-center gap-2 px-3 py-2 text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors font-medium"
-                >
-                  <LogOut className="w-5 h-5" />
-                  Sign Out
-                </button>
               </nav>
             </div>
           </div>

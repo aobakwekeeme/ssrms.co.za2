@@ -4,9 +4,11 @@ import { useAuth } from '../hooks/useAuth';
 import { useShops } from '../hooks/useShops';
 import { useInspections } from '../hooks/useInspections';
 import { useDocuments } from '../hooks/useDocuments';
-import { LogOut, Home, Store, ClipboardCheck, HelpCircle, Settings, Menu, X } from 'lucide-react';
+import { Home, Store, ClipboardCheck, HelpCircle, Menu, X } from 'lucide-react';
 import { supabase } from '../integrations/supabase/client';
 import { toast } from 'sonner';
+import NotificationDropdown from './NotificationDropdown';
+import ProfileDropdown from './ProfileDropdown';
 
 export default function GovernmentDashboard() {
   const { user, profile } = useAuth();
@@ -14,15 +16,6 @@ export default function GovernmentDashboard() {
   const { inspections } = useInspections();
   const { documents } = useDocuments();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const handleSignOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-    } catch {
-      toast.error('Failed to sign out');
-    }
-  };
 
   const pendingShops = shops.filter(shop => shop.status === 'pending');
   const approvedShops = shops.filter(shop => shop.status === 'approved');
@@ -50,11 +43,13 @@ export default function GovernmentDashboard() {
               <img src="/logo.png" alt="SSRMS Logo" className="w-8 h-8 rounded-lg" />
               <h1 className="text-2xl font-bold text-white">Government Dashboard</h1>
             </Link>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <p className="text-white hidden md:block">Welcome, {profile?.full_name || user?.email}</p>
+              <NotificationDropdown />
+              <ProfileDropdown />
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-white p-2 hover:bg-emerald-700 rounded-lg transition-colors"
+                className="text-white p-2 hover:bg-emerald-700 rounded-lg transition-colors md:hidden"
               >
                 {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
@@ -62,10 +57,10 @@ export default function GovernmentDashboard() {
           </div>
         </div>
         
-        {/* Mobile/Toggle Menu */}
+        {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="bg-white border-t border-emerald-500">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="absolute right-4 top-16 z-50 w-64 bg-white border border-border rounded-lg shadow-lg">
+            <div className="p-4">
               <nav className="flex flex-col space-y-2">
                 <Link to="/dashboard" className="flex items-center gap-2 text-gray-700 hover:text-emerald-600 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
                   <Home className="w-5 h-5" />
@@ -83,17 +78,6 @@ export default function GovernmentDashboard() {
                   <HelpCircle className="w-5 h-5" />
                   <span className="font-medium">Support</span>
                 </Link>
-                <Link to="/profile" className="flex items-center gap-2 text-gray-700 hover:text-emerald-600 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                  <Settings className="w-5 h-5" />
-                  <span className="font-medium">Profile</span>
-                </Link>
-                <button
-                  onClick={handleSignOut}
-                  className="flex items-center gap-2 px-3 py-2 text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors font-medium"
-                >
-                  <LogOut className="w-5 h-5" />
-                  Sign Out
-                </button>
               </nav>
             </div>
           </div>
@@ -333,7 +317,7 @@ export default function GovernmentDashboard() {
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   <Link to="/shop-management" className="bg-muted hover:bg-muted/80 px-4 py-3 rounded-lg text-center font-medium transition-colors text-foreground">
-                    Review Apps
+                    Review Shops
                   </Link>
                   <Link to="/inspections" className="bg-muted hover:bg-muted/80 px-4 py-3 rounded-lg text-center font-medium transition-colors text-foreground">
                     Schedule Inspection

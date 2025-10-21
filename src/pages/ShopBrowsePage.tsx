@@ -1,14 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Filter, MapPin, Star, Heart, ArrowLeft } from 'lucide-react';
 import { useShops } from '../hooks/useShops';
 import { useFavorites } from '../hooks/useFavorites';
+import { supabase } from '../integrations/supabase/client';
 
 const ShopBrowsePage: React.FC = () => {
   const { shops, loading } = useShops();
   const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [shopRatings, setShopRatings] = useState<Record<string, { avg: number; count: number }>>({});
+
+  useEffect(() => {
+    const fetchRatings = async () => {
+      const { data } = await supabase
+        .from('reviews')
+        .select('shop_id, rating');
+      
+      if (data) {
+        const ratings: Record<string, { avg: number; count: number }> = {};
+        data.forEach((review: any) => {
+          if (!ratings[review.shop_id]) {
+            ratings[review.shop_id] = { avg: 0, count: 0 };
+          }
+          ratings[review.shop_id].avg += review.rating;
+          ratings[review.shop_id].count += 1;
+        });
+        
+        Object.keys(ratings).forEach(shopId => {
+          ratings[shopId].avg = ratings[shopId].avg / ratings[shopId].count;
+        });
+        
+        setShopRatings(ratings);
+      }
+    };
+    
+    fetchRatings();
+  }, []);
 
   const filteredShops = shops.filter(shop => {
     const matchesSearch = shop.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -131,8 +160,10 @@ const ShopBrowsePage: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <div className="flex items-center">
-                      <Star className="w-4 h-4 text-yellow-400" />
-                      <span className="text-sm text-gray-600 ml-1">4.5</span>
+                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                      <span className="text-sm text-gray-600 ml-1">
+                        {shopRatings[shop.id] ? shopRatings[shop.id].avg.toFixed(1) : '0.0'}
+                      </span>
                     </div>
                     <span className="text-gray-300">•</span>
                     <span className="text-sm text-gray-600">Compliance: {shop.compliance_score}%</span>

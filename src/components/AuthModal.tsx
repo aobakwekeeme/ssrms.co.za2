@@ -395,16 +395,16 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 bg-gradient-to-r from-teal-600 to-blue-600 text-white rounded-lg hover:from-teal-700 hover:to-blue-700 focus:ring-4 focus:ring-teal-200 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            className="w-full py-4 bg-gradient-to-r from-teal-600 to-blue-600 text-white rounded-lg hover:from-teal-700 hover:to-blue-700 focus:ring-4 focus:ring-teal-200 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center relative"
           >
-            {loading ? (
-              <div className="flex items-center justify-center">
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
-                {mode === 'signin' ? 'Signing in...' : 'Creating account...'}
+            {loading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-r from-teal-600 to-blue-600 rounded-lg">
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
               </div>
-            ) : (
-              <span>{mode === 'signin' ? 'Sign In' : 'Create Account'}</span>
             )}
+            <span className={loading ? 'opacity-0' : ''}>
+              {mode === 'signin' ? 'Sign In' : 'Create Account'}
+            </span>
           </button>
 
           <div className="relative">
@@ -443,13 +443,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onModeChan
               }
             </button>
           </div>
-
-          {mode === 'signup' && (
-            <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
-              <p className="text-sm text-blue-800 font-medium mb-1">Email Confirmation Required</p>
-              <p className="text-sm text-blue-700">After registration, you'll receive a confirmation email. Click the link to activate your account and sign in automatically.</p>
-            </div>
-          )}
           
         </form>
       </div>
